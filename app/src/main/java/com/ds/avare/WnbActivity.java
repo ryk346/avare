@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017, Apps4Av Inc. (apps4av.com)
+Copyright (c) 2019, Apps4Av Inc. (apps4av.com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -12,51 +12,82 @@ Redistribution and use in source and binary forms, with or without modification,
 package com.ds.avare;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.Window;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.ds.avare.gps.GpsInterface;
-import com.ds.avare.utils.DecoratedAlertDialogBuilder;
-import com.ds.avare.utils.GenericCallback;
 import com.ds.avare.utils.Helper;
-import com.ds.avare.webinfc.WebAppWnbInterface;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 /**
- * @author zkhan
- * An activity that deals with W&B
+ * @author Ron Walker
+ * An native android activity that deals with W&B
  */
 public class WnbActivity extends Activity {
 
-    /**
-     * This view display location on the map.
-     */
-    private WebView mWebView;
-    private Button mCalculateButton;
-    private WebAppWnbInterface mInfc;
-    private boolean mInited;
+    class acWNB {
+        String      mMake;      // Make
+        String      mModel;     // Model
+        String      mReg;       // Registration
+        float       mGross;     // Gross/max weight
+        float       mCGMin;     // Min CG location
+        float       mCGMax;     // Max CG location
+        armEntry[]  mAEList;    // Arm Entry List
+
+        acWNB(String make, String model, String reg, float gross, float cgMin, float cgMax, armEntry[] aeList) {
+            mMake   = make;
+            mModel  = model;
+            mReg    = reg;
+            mGross  = gross;
+            mCGMin  = cgMin;
+            mCGMax  = cgMax;
+            mAEList = aeList;
+        }
+    }
+
+    class armEntry {
+        int     mIdx;
+        String  mDescription;
+        float   mLocation;
+        float   mWeight;
+
+        armEntry(int idx, String description, float location, float weight) {
+            mIdx = idx;
+            mDescription = description;
+            mLocation = location;
+            mWeight = weight;
+        }
+        int x = R.id.idLocation0;
+    }
+
+    static final int[] idLocations = {R.id.idLocation0,
+            R.id.idLocation1, R.id.idLocation2, R.id.idLocation3,
+            R.id.idLocation4, R.id.idLocation5, R.id.idLocation6,
+            R.id.idLocation7, R.id.idLocation8, R.id.idLocation9};
+
+    static final int[] idNames = {R.id.idName0,
+            R.id.idName1, R.id.idName2, R.id.idName3,
+            R.id.idName4, R.id.idName5, R.id.idName6,
+            R.id.idName7, R.id.idName8, R.id.idName9};
+
+    static final int[] idWeights = {R.id.idWeight0,
+            R.id.idWeight1, R.id.idWeight2, R.id.idWeight3,
+            R.id.idWeight4, R.id.idWeight5, R.id.idWeight6,
+            R.id.idWeight7, R.id.idWeight8, R.id.idWeight9};
 
     // A timer object to handle things when GPS goes away
     private Timer mTimer;
@@ -73,18 +104,11 @@ public class WnbActivity extends Activity {
 
     private Context mContext;
 
-    /*
-     * Callback actions from web app
-     */
-    public static final int SHOW_BUSY = 1;
-    public static final int UNSHOW_BUSY = 2;
-    private static final int MESSAGE = 14;
-    public static final int INIT = 6;
+    private View mView;
 
-    /**
-     * App preferences
-     */
+    private acWNB mACData;
 
+    // To keep the GPS active when this tab is being interacted with
     private GpsInterface mGpsInfc = new GpsInterface() {
 
         @Override
@@ -130,102 +154,121 @@ public class WnbActivity extends Activity {
         mContext = this;
         mService = null;
         mIsPageLoaded = false;
-        mInited = false;
 
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.wnb, null);
-        setContentView(view);
-        mWebView = (WebView)view.findViewById(R.id.wnb_mainpage);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setBuiltInZoomControls(true);
-        mInfc = new WebAppWnbInterface(mContext, mWebView, new GenericCallback() {
-            /*
-             * (non-Javadoc)
-             * @see com.ds.avare.utils.GenericCallback#callback(java.lang.Object)
-             */
-        	@Override
-        	public Object callback(Object o, Object o1) {
-            	Message m = mHandler.obtainMessage((Integer)o, o1);
-            	mHandler.sendMessage(m);
-        		return null;
-        	}
-        });
-        mWebView.addJavascriptInterface(mInfc, "AndroidWnb");
-        mWebView.setWebChromeClient(new WebChromeClient() {
-	     	public void onProgressChanged(WebView view, int progress) {
-                /*
-                 * Now update HTML with latest wnb stuff, do this every time we start the WNB screen as
-                 * things might have changed.
-                 * When both service and page loaded then proceed.
-                 */
-	     		if(100 == progress) {
-		     		mIsPageLoaded = true;
-	     		}
-     	    }
+        mView = layoutInflater.inflate(R.layout.wnb, null);
+        setContentView(mView);
+        mACData = getRV10();
 
-	     	// This is needed to remove title from Confirm dialog
-	        @Override
-	        public boolean onJsConfirm(WebView view, String url, String message, final android.webkit.JsResult result) {
-                if(!isFinishing()) {
-                    new DecoratedAlertDialogBuilder(WnbActivity.this)
-                            .setTitle("")
-                            .setCancelable(true)
-                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface arg0) {
-                                    result.cancel();
-                                }
-                            })
-                            .setMessage(message)
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.confirm();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    result.cancel();
-                                }
-                            })
-                            .create()
-                            .show();
-                }
-	            return true;
-	        }
+        populate();
+        calcAndSetCG();
 
-	    });
-
-        // This is need on some old phones to get focus back to webview.
-        mWebView.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View arg0, MotionEvent arg1) {
-				arg0.performClick();
-				arg0.requestFocus();
-				return false;
-			}
-        });
-
-        mWebView.setOnLongClickListener(new OnLongClickListener() {
-        	@Override
-        	public boolean onLongClick(View v) {
-        	    return true;
-        	}
-        });
-        mWebView.setLongClickable(false);
-
-        mWebView.loadUrl(Helper.getWebViewFile(getApplicationContext(), "wnb"));
-
-        mCalculateButton = (Button)view.findViewById(R.id.wnb_button_calculate);
-        mCalculateButton.setOnClickListener(new View.OnClickListener() {
-
+        Button buttonNew = mView.findViewById(R.id.idNew);
+        buttonNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mInfc.calculate();
+                mACData = getDefault();
+                populate();
+                calcAndSetCG();
             }
         });
+    }
 
+    // Populate the display area with the values for the specified aircraft
+    private void populate() {
 
+        TextView makeAndModel = mView.findViewById(R.id.idMakeAndModel);
+        makeAndModel.setText(mACData.mMake + " " + mACData.mModel + " " + mACData.mReg);
 
+        TextView cgMin = mView.findViewById(R.id.idCGMin);
+        cgMin.setText(Float.toString(mACData.mCGMin));
+
+        TextView cgMax = mView.findViewById(R.id.idCGMax);
+        cgMax.setText(Float.toString(mACData.mCGMax));
+
+        TextView grossWT = mView.findViewById(R.id.idCGGrossWT);
+        grossWT.setText(Float.toString(mACData.mGross));
+
+        for(armEntry ae : mACData.mAEList) {
+            TextView name     = mView.findViewById(idNames[ae.mIdx]);
+            TextView location = mView.findViewById(idLocations[ae.mIdx]);
+            TextView weight   = mView.findViewById(idWeights[ae.mIdx]);
+
+            name.setText(ae.mDescription);
+            if(!ae.mDescription.isEmpty()) {
+                location.setText(Float.toString(ae.mLocation));
+                weight.setText(Float.toString(ae.mWeight));
+            } else {
+                location.setText("");
+                weight.setText("");
+            }
+        }
+    }
+
+    // Read all of the edit controls to calculate the CG and gross weight.
+    // Populate the display fields with that value
+    private void calcAndSetCG() {
+
+        // Calculate the overall arm and gross weight
+        float arm = 0;
+        float WT  = 0;
+
+        for(int idx = 0; idx < idNames.length; idx++) {
+            TextView locationView = mView.findViewById(idLocations[idx]);
+            TextView weightView = mView.findViewById(idWeights[idx]);
+
+            if(weightView.getText().length() > 0 && locationView.getText().length() > 0) {
+                float weight = Float.parseFloat(weightView.getText().toString());
+                float location = Float.parseFloat(locationView.getText().toString());
+
+                arm += weight * location;
+                WT += weight;
+            }
+        }
+
+        float cg = WT > 0 ? arm / WT : 0;
+
+        boolean cgOK = true;
+
+        TextView cgView = mView.findViewById(R.id.idCG);
+        cgView.setText(Float.toString(cg));
+        if(cg == 0) {
+            cgView.setBackgroundColor(Color.WHITE);
+        } else {
+            if (cg <= mACData.mCGMax && cg >= mACData.mCGMin) {
+                cgView.setBackgroundColor(Color.GREEN);
+            } else {
+                cgView.setBackgroundColor(Color.RED);
+                cgOK = false;
+            }
+        }
+
+        TextView weightView = mView.findViewById(R.id.idWeight);
+        weightView.setText(Float.toString(WT));
+        if(WT == 0) {
+            weightView.setBackgroundColor(Color.WHITE);
+        } else {
+            if (WT <= mACData.mGross) {
+                weightView.setBackgroundColor(Color.GREEN);
+            } else {
+                weightView.setBackgroundColor(Color.RED);
+                cgOK = false;
+            }
+        }
+
+        TextView statusView = mView.findViewById(R.id.idStatus);
+        if(mACData.mGross == 0 || mACData.mCGMin == 0 || mACData.mCGMax == 0 || cg ==0 || WT == 0) {
+            statusView.setText("");
+            statusView.setBackgroundColor(Color.WHITE);
+        } else {
+            if (cgOK) {
+                statusView.setText("OK !");
+                statusView.setBackgroundColor(Color.GREEN);
+            } else {
+                statusView.setText("FAIL !");
+                statusView.setBackgroundColor(Color.RED);
+            }
+        }
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -248,7 +291,6 @@ public class WnbActivity extends Activity {
              * LocalService instance
              */
             StorageService.LocalBinder binder = (StorageService.LocalBinder) service;
-            mInfc.connect(binder.getService());
             mService = binder.getService();
             mService.registerGpsListener(mGpsInfc);
             /*
@@ -298,8 +340,6 @@ public class WnbActivity extends Activity {
          */
         Intent intent = new Intent(this, StorageService.class);
         getApplicationContext().bindService(intent, mConnection, 0);
-
-		mWebView.requestFocus();        
     }
 
     /*
@@ -363,44 +403,44 @@ public class WnbActivity extends Activity {
     private class UpdateTask extends TimerTask {
 	    // Called whenever the timer fires.
 	    public void run() {
-	    	if(mService != null && mIsPageLoaded && !mInited) {
-	    		// Load lists when done with service and page loading
-	    		mHandler.sendEmptyMessage(INIT);
-	    		mInited = true;
+	    	if(mService != null) {
 	    	}
 	    }
     }
 
+    private acWNB getRV10() {
+        armEntry ae0 = new armEntry (0, "Left Main", 124.4f, 581f);
+        armEntry ae1 = new armEntry (1, "Right Main", 124.4f, 579f);
+        armEntry ae2 = new armEntry (2, "Nose/Tail", 50.4f, 342f);
+        armEntry ae3 = new armEntry (3, "Front Seat Pax", 114.58f, 180f);
+        armEntry ae4 = new armEntry (4, "Rear Seat Pax", 151.26f, 0f);
+        armEntry ae5 = new armEntry (5, "Fuel 1", 108.9f, 60f);
+        armEntry ae6 = new armEntry (6, "Fuel 2", 0f, 0f);
+        armEntry ae7 = new armEntry (7, "Baggage 1", 173.5f, 0f);
+        armEntry ae8 = new armEntry (8, "Baggage 2", 0f, 0f);
+        armEntry ae9 = new armEntry (9, "", 0f, 0f);
 
-    /**
-     * 
-     */
-    private Handler mHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-    		if(msg.what == SHOW_BUSY) {
-    		}
-    		else if(msg.what == UNSHOW_BUSY) {
-    		}
-    		else if(msg.what == MESSAGE) {
-    			// Show an important message
-    			DecoratedAlertDialogBuilder builder = new DecoratedAlertDialogBuilder(mContext);
-    			builder.setMessage((String)msg.obj)
-    			       .setCancelable(false)
-    			       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-    			           public void onClick(DialogInterface dialog, int id) {
-    			                dialog.dismiss();
-    			           }
-    			});
-    			AlertDialog alert = builder.create();
-                if(!isFinishing()) {
-                    alert.show();
-                }
-    		}
-    		else if(msg.what == INIT) {
-   				mInfc.newSaveWnb();
-    		}
-        }
-    };
+        armEntry[] armList = {ae0, ae1, ae2, ae3, ae4, ae5, ae6, ae7, ae8, ae9};
 
+
+        return new acWNB("Vans", "RV10", "N820TX", 2700, 107.84f, 116.24f, armList);
+    }
+
+    private acWNB getDefault() {
+        armEntry ae0 = new armEntry (0, "Left Main", 0f, 0f);
+        armEntry ae1 = new armEntry (1, "Right Main", 0f, 0f);
+        armEntry ae2 = new armEntry (2, "Nose/Tail", 0f, 0f);
+        armEntry ae3 = new armEntry (3, "Front Seat Pax", 0f, 0f);
+        armEntry ae4 = new armEntry (4, "Fuel 1", 0f, 0f);
+        armEntry ae5 = new armEntry (5, "Baggage 1", 0f, 0f);
+        armEntry ae6 = new armEntry (6, "", 0f, 0f);
+        armEntry ae7 = new armEntry (7, "", 0f, 0f);
+        armEntry ae8 = new armEntry (8, "", 0f, 0f);
+        armEntry ae9 = new armEntry (9, "", 0f, 0f);
+
+        armEntry[] armList = {ae0, ae1, ae2, ae3, ae4, ae5, ae6, ae7, ae8, ae9};
+
+
+        return new acWNB("Default", "Aircraft", "N123AB", 0, 0f, 0f, armList);
+    }
 }

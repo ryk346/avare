@@ -2358,6 +2358,7 @@ Redistribution and use in source and binary forms, with or without modification,
         <item>&quot;You can save and restore your data to Google Drive from Preferences->Application State->Sync Data&quot;</item>
         <item>&quot;You can change the shown chart type in Map screen by long pressing on the Map tab&quot;</item>
         <item>&quot;You can modify the quantity of fields on the top of the display by adjusting the Avare font size scaling at Preferences->UI Configuration->Adjust Font Size&quot;</item>
+        <item>&quot;Avare can read GPX flight plans created by SkyVector. Save the GPX file to the directory specified by Perferences->Storage &amp; Downloads->User Defines Waypoints/Plans&quot;</item>
     </string-array>
 
 </resources>

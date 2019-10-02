@@ -31,23 +31,32 @@ public class WeightAndBalance {
     public static final int WNB_C172R = 1;
     public static final int WNB_PA28R_200B = 2;
     public static final int WNB_PA23_250 = 3;
+    public static final int WNB_VANS_RV10 = 4;
 
     public WeightAndBalance(int type) {
-        String ex;
+        String ex = getDefault();
 
-        if(WNB_PA28R_200B == type) {
-            ex = getExamplePA28R200B();
-        }
-        else if(WNB_PA23_250 == type) {
-            ex = getExamplePA23250();
-        }
-        else {
-            ex = getExampleC172R();
+        switch (type) {
+            case WNB_PA28R_200B:
+                ex = getExamplePA28R200B();
+                break;
+
+            case WNB_C172R:
+                ex = getExampleC172R();
+                break;
+
+            case WNB_PA23_250:
+                ex = getExamplePA23250();
+                break;
+
+            case WNB_VANS_RV10:
+                ex = getExampleRV10();
+                break;
         }
 
         try {
             mWnb = new JSONObject(ex);
-        } catch (JSONException e) {
+        } catch (JSONException ignore) {
 
         }
     }
@@ -213,7 +222,7 @@ public class WeightAndBalance {
                 "'name'  :'Sample PA28R 200B'," +
                 "'t_0'   :'Empty'," +
                 "'w_0'   :'1577'," +
-                "'a_0'   :'85.5',"+
+                "'a_0'   :'85.5'," +
                 "'t_1'   :'Oil'," +
                 "'w_1'   :'15'," +
                 "'a_1'   :'29.5'," +
@@ -249,5 +258,85 @@ public class WeightAndBalance {
                 "}";
     }
 
+    public static String getExampleRV10() {
+        return "{" +
+                "'name'  :'Vans RV10 N820TX'," +
+                "'t_0'   :'Right'," +
+                "'w_0'   :'579'," +
+                "'a_0'   :'124.4',"+
+                "'t_1'   :'Left'," +
+                "'w_1'   :'581'," +
+                "'a_1'   :'124.4'," +
+                "'t_2'   :'Nose'," +
+                "'w_2'   :'342'," +
+                "'a_2'   :'50.4'," +
+                "'t_3'   :'Front Passengers'," +
+                "'w_3'   :'185'," +
+                "'a_3'   :'114.58'," +
+                "'t_4'   :'Rear Passengers'," +
+                "'w_4'   :'0'," +
+                "'a_4'   :'151.26'," +
+                "'t_5'   :'Baggage'," +
+                "'w_5'   :'0'," +
+                "'a_5'   :'173.5'," +
+                "'t_6'   :'Fuel'," +
+                "'w_6'   :'60'," +
+                "'a_6'   :'108.9'," +
+                "'t_7'   :''," +
+                "'w_7'   :''," +
+                "'a_7'   :''," +
+                "'t_8'   :''," +
+                "'w_8'   :''," +
+                "'a_8'   :''," +
+                "'t_9'   :''," +
+                "'w_9'   :''," +
+                "'a_9'   :''," +
+                "'max_w' :'2700'," +
+                "'min_w' :'1502'," +
+                "'max_a' :'116.24'," +
+                "'min_a' :'107.84'," +
+                "'points':'47.3,1650 35,1650 35,1950 40,2450 47.3,2450 47.3,1650'" +
+                "}";
+    }
 
+    public static String getDefault() {
+        return "{" +
+                "'name'  :'Default Aircraft N123AB'," +
+                "'t_0'   :'Right'," +
+                "'w_0'   :'0'," +
+                "'a_0'   :'0',"+
+                "'t_1'   :'Left'," +
+                "'w_1'   :'0'," +
+                "'a_1'   :'0'," +
+                "'t_2'   :'Nose'," +
+                "'w_2'   :'0'," +
+                "'a_2'   :'0'," +
+                "'t_3'   :'Front Passengers'," +
+                "'w_3'   :'0'," +
+                "'a_3'   :'0'," +
+                "'t_4'   :'Rear Passengers'," +
+                "'w_4'   :'0'," +
+                "'a_4'   :'0'," +
+                "'t_5'   :'Baggage'," +
+                "'w_5'   :'0'," +
+                "'a_5'   :'0'," +
+                "'t_6'   :'Fuel'," +
+                "'w_6'   :'0'," +
+                "'a_6'   :'0'," +
+                "'t_7'   :''," +
+                "'w_7'   :''," +
+                "'a_7'   :''," +
+                "'t_8'   :''," +
+                "'w_8'   :''," +
+                "'a_8'   :''," +
+                "'t_9'   :''," +
+                "'w_9'   :''," +
+                "'a_9'   :''," +
+                "'max_w' :'0'," +
+                "'min_w' :'0'," +
+                "'max_a' :'0'," +
+                "'min_a' :'0'," +
+                "'points':'47.3,1650 35,1650 35,1950 40,2450 47.3,2450 47.3,1650'" +
+                "}";
+    }
 }

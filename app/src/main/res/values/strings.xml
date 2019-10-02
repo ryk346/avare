@@ -143,9 +143,9 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="Next">&quot;Next&quot;</string>
     <string name="Last">&quot;Last&quot;</string>
     <string name="Previous">&quot;Previous&quot;</string>
-    <string name="Save">&quot;Save&quot;</string>
+    <string name="Save">Save</string>
     <string name="SavedPlan">&quot;Load/Save Plans&quot;</string>
-    <string name="Load">&quot;Load&quot;</string>
+    <string name="Load">Load</string>
     <string name="LoadReverse">&quot;Reverse Load&quot;</string>
     <string name="WeatherError">&quot;Could not download weather data&quot;</string>
     <string name="NotamsError">&quot;Could not download NOTAMS data&quot;</string>
@@ -575,5 +575,19 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="AdjustFontSizeLabel">Adjust Font Size (requires restart)</string>
     <string name="AdjustFontSizeSummary">Adjust the relative font size that Avare uses</string>
     <string name="AdjustFontSizeMessage">Select the scaling size to apply</string>
+
+    <string name="Reload">Reload</string>
+    <string name="New">New</string>
+    <string name="WeightAndBalance">Weight &amp; Balance</string>
+    <string name="CG">CG : </string>
+    <string name="CGMin">CG Min : </string>
+    <string name="CGMax">CG Max : </string>
+    <string name="Status">Status : </string>
+    <string name="GrossWT">Gross WT : </string>
+    <string name="TOWeight">TO Weight : </string>
+    <string name="Description">Description</string>
+    <string name="Location">Location</string>
+    <string name="Weight">Weight</string>
+    <string name="SelectACP">Select Aircraft Profile</string>
 
 </resources>

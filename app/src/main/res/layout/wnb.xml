@@ -14,7 +14,188 @@ Redistribution and use in source and binary forms, with or without modification,
 	android:id="@+id/wnb_mainpage"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="#FFFFFF">
+	android:background="#FFFFFF"
+	android:isScrollContainer="true"
+	android:overScrollMode="always"
+	android:scrollbarAlwaysDrawVerticalTrack="true">
+
+	<LinearLayout
+		android:id="@+id/idllSLEButtons"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_marginLeft="10sp"
+		android:layout_marginRight="10sp"
+		android:layout_marginBottom="10sp"
+		android:orientation="horizontal">
+
+		<Button
+			android:id="@+id/idLoad"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/Load" />
+
+		<Button
+			android:id="@+id/idReload"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/Reload" />
+
+		<Button
+			android:id="@+id/idSave"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/Save" />
+
+		<Button
+			android:id="@+id/idNew"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/New" />
+
+	</LinearLayout>
+
+	<TableLayout
+		android:id="@+id/idCGnWeight"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/idAircraftArms"
+		android:paddingLeft="10sp"
+		android:paddingTop="10sp"
+		android:paddingRight="10sp"
+		android:showDividers="middle|beginning|end">
+
+		<TableRow
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="5sp">
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="5"
+				android:gravity="center_horizontal"
+				android:text="@string/WeightAndBalance"
+				android:textSize="32sp"
+				android:textStyle="bold" />
+		</TableRow>
+
+		<TableRow
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="end"
+				android:text="@string/CGMin"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/idCGMin"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:inputType="text" />
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="end"
+				android:text="@string/CG"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/idCG"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="center_horizontal|center_vertical"
+				android:inputType="number" />
+
+		</TableRow>
+
+		<TableRow
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="end"
+				android:text="@string/CGMax"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/idCGMax"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:inputType="text" />
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="end"
+				android:text="@string/TOWeight"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/idWeight"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="center_horizontal|center_vertical"
+				android:inputType="number" />
+
+		</TableRow>
+
+		<TableRow
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="end"
+				android:text="@string/GrossWT"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/idCGGrossWT"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:inputType="text" />
+
+			<TextView
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="end"
+				android:text="@string/Status"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/idStatus"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="center_horizontal|center_vertical"
+				android:inputType="number" />
+
+		</TableRow>
+
+	</TableLayout>
 
 	<TableLayout
 		android:id="@+id/idAircraftArms"
@@ -47,7 +228,7 @@ Redistribution and use in source and binary forms, with or without modification,
 				android:layout_height="wrap_content"
 				android:layout_weight="3"
 				android:gravity="center_horizontal"
-				android:text="Description"
+				android:text="@string/Description"
 				android:textStyle="bold" />
 
 			<TextView
@@ -56,7 +237,7 @@ Redistribution and use in source and binary forms, with or without modification,
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:gravity="center_horizontal"
-				android:text="Location"
+				android:text="@string/Location"
 				android:textStyle="bold" />
 
 			<TextView
@@ -64,7 +245,7 @@ Redistribution and use in source and binary forms, with or without modification,
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:gravity="center_horizontal"
-				android:text="Weight"
+				android:text="@string/Weight"
 				android:textStyle="bold" />
 
 		</TableRow>
@@ -342,185 +523,4 @@ Redistribution and use in source and binary forms, with or without modification,
 			android:layout_width="match_parent"
 			android:layout_height="match_parent" />
 	</TableLayout>
-
-	<TableLayout
-		android:id="@+id/idCGnWeight"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/idAircraftArms"
-		android:paddingLeft="10sp"
-		android:paddingTop="10sp"
-		android:paddingRight="10sp"
-		android:showDividers="middle|beginning|end">
-
-		<TableRow
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="5sp">
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="5"
-				android:gravity="center_horizontal"
-				android:text="Weight &amp; Balance"
-				android:textSize="32sp"
-				android:textStyle="bold" />
-		</TableRow>
-
-		<TableRow
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="right"
-				android:inputType="text"
-				android:text="CG Min:"
-				android:textStyle="bold" />
-
-			<EditText
-				android:id="@+id/idCGMin"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:inputType="text" />
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="right"
-				android:inputType="text"
-				android:text="CG:"
-				android:textStyle="bold" />
-
-			<EditText
-				android:id="@+id/idCG"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:inputType="number" />
-
-		</TableRow>
-
-		<TableRow
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="right"
-				android:inputType="text"
-				android:text="CG Max:"
-				android:textStyle="bold" />
-
-			<EditText
-				android:id="@+id/idCGMax"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:inputType="text" />
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="right"
-				android:inputType="text"
-				android:text="Weight:"
-				android:textStyle="bold" />
-
-			<EditText
-				android:id="@+id/idWeight"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:inputType="number" />
-
-		</TableRow>
-
-		<TableRow
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="right"
-				android:inputType="text"
-				android:text="Gross Wt:"
-				android:textStyle="bold" />
-
-			<EditText
-				android:id="@+id/idCGGrossWT"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:inputType="text" />
-
-			<TextView
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:gravity="right"
-				android:inputType="text"
-				android:text="Status:"
-				android:textStyle="bold" />
-
-			<EditText
-				android:id="@+id/idStatus"
-				android:layout_width="0dip"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:inputType="number" />
-
-		</TableRow>
-
-	</TableLayout>
-
-	<LinearLayout
-		android:id="@+id/idllSLEButtons"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_marginLeft="10sp"
-		android:layout_marginRight="10sp"
-		android:layout_marginBottom="10sp"
-		android:orientation="horizontal">
-
-		<Button
-			android:id="@+id/idLoad"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="Load" />
-
-		<Button
-			android:id="@+id/idReload"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="Reload" />
-
-		<Button
-			android:id="@+id/idSave"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="Save" />
-
-		<Button
-			android:id="@+id/idNew"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="New" />
-
-	</LinearLayout>
 </RelativeLayout>

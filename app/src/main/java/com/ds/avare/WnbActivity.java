@@ -12,8 +12,10 @@ Redistribution and use in source and binary forms, with or without modification,
 package com.ds.avare;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
@@ -28,6 +30,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.ds.avare.gps.GpsInterface;
+import com.ds.avare.utils.DecoratedAlertDialogBuilder;
 import com.ds.avare.utils.Helper;
 
 import java.util.Timer;
@@ -35,7 +38,7 @@ import java.util.TimerTask;
 
 /**
  * @author Ron Walker
- * An native android activity that deals with W&B
+ * A native android UI activity that deals with W&B
  */
 public class WnbActivity extends Activity {
 
@@ -170,6 +173,38 @@ public class WnbActivity extends Activity {
                 mACData = getDefault();
                 populate();
                 calcAndSetCG();
+            }
+        });
+
+        Button buttonLoad = mView.findViewById(R.id.idLoad);
+        buttonLoad.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String[] acProfiles = {"Vans RV7a N520TX", "Vans RV10 N820TX", "Grumman AA1A N706LG", "Diamond DA20 N183DA"};
+
+                DecoratedAlertDialogBuilder dlgBldr = new DecoratedAlertDialogBuilder(WnbActivity.this);
+                dlgBldr.setTitle(WnbActivity.this.getString(R.string.SelectACP));
+                dlgBldr.setItems(acProfiles,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // _nNewSelection = which;
+                                dialog.dismiss();
+                            }
+                        });
+
+                // Cancel, nothing to do here, let the dialog self-destruct
+                dlgBldr.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+
+                // Create and show the dialog now
+                AlertDialog dialog = dlgBldr.create();
+                if (!isFinishing()) {
+                    dialog.show();
+                }
             }
         });
     }

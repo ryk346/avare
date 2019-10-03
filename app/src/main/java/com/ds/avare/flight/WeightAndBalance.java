@@ -28,6 +28,7 @@ public class WeightAndBalance {
 
     JSONObject mWnb;
 
+    public static final int WNB_DEFAULT = 0;
     public static final int WNB_C172R = 1;
     public static final int WNB_PA28R_200B = 2;
     public static final int WNB_PA23_250 = 3;
@@ -308,7 +309,7 @@ public class WeightAndBalance {
                 "'t_1'   :'Left'," +
                 "'w_1'   :'0'," +
                 "'a_1'   :'0'," +
-                "'t_2'   :'Nose'," +
+                "'t_2'   :'Nose/Tail'," +
                 "'w_2'   :'0'," +
                 "'a_2'   :'0'," +
                 "'t_3'   :'Front Passengers'," +

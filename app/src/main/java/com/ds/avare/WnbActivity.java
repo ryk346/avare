@@ -29,14 +29,17 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ds.avare.flight.AircraftSpecs;
+import com.ds.avare.flight.WeightAndBalance;
 import com.ds.avare.gps.GpsInterface;
 import com.ds.avare.utils.DecoratedAlertDialogBuilder;
 import com.ds.avare.utils.Helper;
 
+import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -73,7 +76,7 @@ public class WnbActivity extends Activity {
 
     private Context mContext;
 
-//    private AircraftSpecs mACData;
+    private LinkedList<AircraftSpecs> mACData = new LinkedList<>();
 
     // To keep the GPS active when this tab is being interacted with
     private GpsInterface mGpsInfc = new GpsInterface() {
@@ -156,14 +159,25 @@ public class WnbActivity extends Activity {
         EditText cgGrossWT = mView.findViewById(R.id.idCGGrossWT);
         cgGrossWT.setOnFocusChangeListener(doRecalc);
 
-        populate(getRV10());
+        // Fetch all of the WnB info that we have in storage
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_DEFAULT).getJSON()));
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_C172R).getJSON()));
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA23_250).getJSON()));
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B).getJSON()));
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10).getJSON()));
+
+        populate(mACData.getLast());
         calcAndSetCG();
 
         Button buttonLoad = mView.findViewById(R.id.idLoad);
         buttonLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String[] acProfiles = {"Vans RV7a N520TX", "Vans RV10 N820TX", "Grumman AA1A N706LG", "Diamond DA20 N183DA"};
+                int idx = 0;
+                final String[] acProfiles = new String[mACData.size()];
+                for(AircraftSpecs as : mACData){
+                    acProfiles[idx++] = as.make() + " " + as.model() + " " + as.reg();
+                }
 
                 DecoratedAlertDialogBuilder dlgBldr = new DecoratedAlertDialogBuilder(WnbActivity.this);
                 dlgBldr.setTitle(WnbActivity.this.getString(R.string.SelectACP));
@@ -171,7 +185,8 @@ public class WnbActivity extends Activity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // _nNewSelection = which;
+                                populate(mACData.get(which));
+                                calcAndSetCG();
                                 dialog.dismiss();
                             }
                         });
@@ -191,21 +206,15 @@ public class WnbActivity extends Activity {
             }
         });
 
-        // Reload the current W&B profile, erasing any possible changes
-        Button buttonReload = mView.findViewById(R.id.idReload);
-        buttonReload.setOnClickListener(new View.OnClickListener() {
+        // Display a color chart showing the W&B
+        Button buttonGraph = mView.findViewById(R.id.idGraph);
+        buttonGraph.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-            }
-        });
-
-        // Create a new blank W&B profile
-        Button buttonNew = mView.findViewById(R.id.idNew);
-        buttonReload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
+                Dialog graphDlg = new Dialog(mContext);
+                graphDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                graphDlg.setContentView(R.layout.graph_wnb);
+                graphDlg.show();
             }
         });
 
@@ -531,39 +540,5 @@ public class WnbActivity extends Activity {
 	    	if(mService != null) {
 	    	}
 	    }
-    }
-
-    private AircraftSpecs getRV10() {
-        AircraftSpecs as = new AircraftSpecs("Vans", "RV10", "N820TX", 2700, 107.84f, 116.24f);
-
-        as.addArm(as.new ArmEntry("Left Main", 124.4f, 581f));
-        as.addArm(as.new ArmEntry("Right Main", 124.4f, 579f));
-        as.addArm(as.new ArmEntry("Nose", 50.4f, 342f));
-        as.addArm(as.new ArmEntry("Front Seat Pax", 114.58f, 180f));
-        as.addArm(as.new ArmEntry("Rear Seat Pax", 151.26f, 0f));
-        as.addArm(as.new ArmEntry("Fuel", 108.9f, 60f));
-        as.addArm(as.new ArmEntry("Baggage", 173.5f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-
-        return as;
-    }
-
-    private AircraftSpecs getDefault() {
-        AircraftSpecs as = new AircraftSpecs("Default", "Aircraft", "N123AB", 0, 0f, 0f);
-
-        as.addArm(as.new ArmEntry("Left Main", 0f, 0f));
-        as.addArm(as.new ArmEntry("Right Main", 0f, 0f));
-        as.addArm(as.new ArmEntry("Nose/Tail", 0f, 0f));
-        as.addArm(as.new ArmEntry("Front Seat Pax", 0f, 0f));
-        as.addArm(as.new ArmEntry("Fuel 1", 0f, 0f));
-        as.addArm(as.new ArmEntry("Baggage 1", 0f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-        as.addArm(as.new ArmEntry("", 0f, 0f));
-
-        return as;
     }
 }

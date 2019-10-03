@@ -60,6 +60,7 @@ Redistribution and use in source and binary forms, with or without modification,
 					<TextView
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"
+						android:layout_marginEnd="10dp"
 						android:layout_weight="1"
 						android:gravity="end"
 						android:text="@string/CGMin"
@@ -78,6 +79,7 @@ Redistribution and use in source and binary forms, with or without modification,
 						android:layout_weight="1"
 						android:gravity="end"
 						android:text="@string/CG"
+						android:layout_marginEnd="10dp"
 						android:textStyle="bold" />
 
 					<EditText
@@ -101,6 +103,7 @@ Redistribution and use in source and binary forms, with or without modification,
 						android:layout_weight="1"
 						android:gravity="end"
 						android:text="@string/CGMax"
+						android:layout_marginEnd="10dp"
 						android:textStyle="bold" />
 
 					<EditText
@@ -116,6 +119,7 @@ Redistribution and use in source and binary forms, with or without modification,
 						android:layout_weight="1"
 						android:gravity="end"
 						android:text="@string/TOWeight"
+						android:layout_marginEnd="10dp"
 						android:textStyle="bold" />
 
 					<EditText
@@ -139,6 +143,7 @@ Redistribution and use in source and binary forms, with or without modification,
 						android:layout_weight="1"
 						android:gravity="end"
 						android:text="@string/GrossWT"
+						android:layout_marginEnd="10dp"
 						android:textStyle="bold" />
 
 					<EditText
@@ -154,6 +159,7 @@ Redistribution and use in source and binary forms, with or without modification,
 						android:layout_weight="1"
 						android:gravity="end"
 						android:text="@string/Status"
+						android:layout_marginEnd="10dp"
 						android:textStyle="bold" />
 
 					<EditText
@@ -527,6 +533,7 @@ Redistribution and use in source and binary forms, with or without modification,
 		android:layout_marginBottom="5dp">
 
 		<Button
+			style="?android:attr/borderlessButtonStyle"
 			android:id="@+id/idLoad"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -536,15 +543,17 @@ Redistribution and use in source and binary forms, with or without modification,
 			android:text="@string/Load" />
 
 		<Button
-			android:id="@+id/idReload"
+			style="?android:attr/borderlessButtonStyle"
+			android:id="@+id/idGraph"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_gravity="bottom"
 			android:layout_weight="1"
 			android:gravity="center_horizontal|center_vertical"
-			android:text="@string/Reload" />
+			android:text="@string/Graph" />
 
 		<Button
+			style="?android:attr/borderlessButtonStyle"
 			android:id="@+id/idSave"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -552,15 +561,6 @@ Redistribution and use in source and binary forms, with or without modification,
 			android:layout_weight="1"
 			android:gravity="center_horizontal|center_vertical"
 			android:text="@string/Save" />
-
-		<Button
-			android:id="@+id/idNew"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_gravity="bottom"
-			android:layout_weight="1"
-			android:gravity="center_horizontal|center_vertical"
-			android:text="@string/New" />
 
 	</LinearLayout>
 

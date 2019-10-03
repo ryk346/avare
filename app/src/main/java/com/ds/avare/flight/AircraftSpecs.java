@@ -12,8 +12,9 @@ Redistribution and use in source and binary forms, with or without modification,
 
 package com.ds.avare.flight;
 
+import org.json.JSONObject;
+
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Object to encapsulate the properties of an aircraft
@@ -26,31 +27,29 @@ public class AircraftSpecs {
     private String      mModel;     // Model
     private String      mReg;       // Registration
     private float       mGross;     // Gross/max weight
+    private float       mEmpty;     // Empty weight
     private float       mCGMin;     // Min CG location
     private float       mCGMax;     // Max CG location
-    private LinkedList<ArmEntry> mAEList;    // Arm Entry List
+    private String      mCGEnv;    // CG Envelope
+    private LinkedList<ArmEntry> mAEList = new LinkedList<ArmEntry>();    // Arm Entry List
 
-    public AircraftSpecs(String make, String model, String reg, float gross, float cgMin, float cgMax) {
-            mMake   = make;
-            mModel  = model;
-            mReg    = reg;
-            mGross  = gross;
-            mCGMin  = cgMin;
-            mCGMax  = cgMax;
-            mAEList = new LinkedList<ArmEntry>();
-        }
+    public AircraftSpecs(JSONObject acData) {
+        parseFromJSon(acData);
+    }
 
     public void addArm(ArmEntry armEntry) {
         armEntry.mIdx = aeList().size();
         mAEList.add(armEntry);
     }
 
-    public String make() { return mMake; }
+    public String make()  { return mMake; }
     public String model() { return mModel; }
-    public String reg() { return mReg; }
-    public float gross() { return mGross; }
-    public float cgMin() { return mCGMin; }
-    public float cgMax() { return mCGMax; }
+    public String reg()   { return mReg; }
+    public float gross()  { return mGross; }
+    public float empty()  { return mEmpty; }
+    public float cgMin()  { return mCGMin; }
+    public float cgMax()  { return mCGMax; }
+    public String cgEnv() { return mCGEnv; }
     public LinkedList<ArmEntry> aeList() { return mAEList; }
 
     public class ArmEntry {
@@ -80,5 +79,37 @@ public class AircraftSpecs {
             mLocation = location;
             mWeight = weight;
         }
+    }
+
+    // JSON is how the data is saved. Parse the object out to fill our structure
+    private void parseFromJSon(JSONObject acData) {
+
+        try {
+            String MakeModelReg = acData.getString("name");
+            String[] MMR = MakeModelReg.split(" ");
+            mMake  = MMR.length > 0 ? MMR[0] : "Exp";
+            mModel = MMR.length > 1 ? MMR[1] : "Airplane";
+            mReg   = MMR.length > 2 ? MMR[2] : "N123AB";
+
+            mGross = acData.getInt("max_w");
+            mEmpty = acData.getInt("min_w");
+            mCGMin = acData.getInt("min_a");
+            mCGMax = acData.getInt("max_a");
+            mCGEnv = acData.getString("points");
+
+            for(int idx = 0; idx <= 9; idx++) {
+                try {
+                    addArm(new ArmEntry(
+                            acData.getString("t_" + Integer.toString(idx)),
+                            acData.getInt("a_" + Integer.toString(idx)),
+                            acData.getInt("w_" + Integer.toString(idx))));
+                } catch (Exception ex) {
+                    addArm(new ArmEntry("", 0, 0));
+                }
+            }
+        } catch (Exception ignore) {
+
+        }
+
     }
 }

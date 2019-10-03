@@ -576,12 +576,12 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="AdjustFontSizeSummary">Adjust the relative font size that Avare uses</string>
     <string name="AdjustFontSizeMessage">Select the scaling size to apply</string>
 
-    <string name="Reload">Reload</string>
+    <string name="Graph">Graph</string>
     <string name="New">New</string>
     <string name="WeightAndBalance">Weight &amp; Balance</string>
     <string name="CG">CG : </string>
-    <string name="CGMin">CG Min : </string>
-    <string name="CGMax">CG Max : </string>
+    <string name="CGMin">CG Fore : </string>
+    <string name="CGMax">CG Aft : </string>
     <string name="Status">Status : </string>
     <string name="GrossWT">Gross WT : </string>
     <string name="TOWeight">TO Weight : </string>
@@ -595,4 +595,5 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="Model">Model :</string>
     <string name="Reg">Registration :</string>
     <string name="WBSavePrompt">Save Weight &amp; Balance Data</string>
+    <string name="WNBGraph">Dot Shows CG Location in W&amp;B Envelope</string>
 </resources>

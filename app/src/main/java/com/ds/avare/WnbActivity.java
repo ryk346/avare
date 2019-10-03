@@ -13,6 +13,7 @@ package com.ds.avare;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,8 +28,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.ds.avare.flight.AircraftSpecs;
 import com.ds.avare.gps.GpsInterface;
 import com.ds.avare.utils.DecoratedAlertDialogBuilder;
 import com.ds.avare.utils.Helper;
@@ -41,41 +45,6 @@ import java.util.TimerTask;
  * A native android UI activity that deals with W&B
  */
 public class WnbActivity extends Activity {
-
-    class acWNB {
-        String      mMake;      // Make
-        String      mModel;     // Model
-        String      mReg;       // Registration
-        float       mGross;     // Gross/max weight
-        float       mCGMin;     // Min CG location
-        float       mCGMax;     // Max CG location
-        armEntry[]  mAEList;    // Arm Entry List
-
-        acWNB(String make, String model, String reg, float gross, float cgMin, float cgMax, armEntry[] aeList) {
-            mMake   = make;
-            mModel  = model;
-            mReg    = reg;
-            mGross  = gross;
-            mCGMin  = cgMin;
-            mCGMax  = cgMax;
-            mAEList = aeList;
-        }
-    }
-
-    class armEntry {
-        int     mIdx;
-        String  mDescription;
-        float   mLocation;
-        float   mWeight;
-
-        armEntry(int idx, String description, float location, float weight) {
-            mIdx = idx;
-            mDescription = description;
-            mLocation = location;
-            mWeight = weight;
-        }
-        int x = R.id.idLocation0;
-    }
 
     static final int[] idLocations = {R.id.idLocation0,
             R.id.idLocation1, R.id.idLocation2, R.id.idLocation3,
@@ -100,16 +69,11 @@ public class WnbActivity extends Activity {
      */
     private StorageService mService;
     
-    /*
-     * If page it loaded
-     */
-    private boolean mIsPageLoaded;
+    private View mView;
 
     private Context mContext;
 
-    private View mView;
-
-    private acWNB mACData;
+//    private AircraftSpecs mACData;
 
     // To keep the GPS active when this tab is being interacted with
     private GpsInterface mGpsInfc = new GpsInterface() {
@@ -152,29 +116,48 @@ public class WnbActivity extends Activity {
         Helper.setTheme(this);
         super.onCreate(savedInstanceState);
      
-        
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         mContext = this;
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         mService = null;
-        mIsPageLoaded = false;
 
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = layoutInflater.inflate(R.layout.wnb, null);
         setContentView(mView);
-        mACData = getRV10();
 
-        populate();
-        calcAndSetCG();
-
-        Button buttonNew = mView.findViewById(R.id.idNew);
-        buttonNew.setOnClickListener(new View.OnClickListener() {
+        // Create a callback that will recalc all the values
+        View.OnFocusChangeListener doRecalc = new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                mACData = getDefault();
-                populate();
-                calcAndSetCG();
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    calcAndSetCG();
+                }
             }
-        });
+        };
+
+        // When any of the WEIGHT fields is exited, do the recalc
+        for(int idWeight : idWeights) {
+            EditText etWeight = mView.findViewById(idWeight);
+            etWeight.setOnFocusChangeListener(doRecalc);
+        }
+
+        // When any of the LOCATION fields is exited, do the recalc
+        for(int idLocation : idLocations) {
+            EditText etLocation = mView.findViewById(idLocation);
+            etLocation.setOnFocusChangeListener(doRecalc);
+        }
+
+        EditText cgMin = mView.findViewById(R.id.idCGMin);
+        cgMin.setOnFocusChangeListener(doRecalc);
+
+        EditText cgMax = mView.findViewById(R.id.idCGMax);
+        cgMax.setOnFocusChangeListener(doRecalc);
+
+        EditText cgGrossWT = mView.findViewById(R.id.idCGGrossWT);
+        cgGrossWT.setOnFocusChangeListener(doRecalc);
+
+        populate(getRV10());
+        calcAndSetCG();
 
         Button buttonLoad = mView.findViewById(R.id.idLoad);
         buttonLoad.setOnClickListener(new View.OnClickListener() {
@@ -207,32 +190,126 @@ public class WnbActivity extends Activity {
                 }
             }
         });
+
+        // Reload the current W&B profile, erasing any possible changes
+        Button buttonReload = mView.findViewById(R.id.idReload);
+        buttonReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        // Create a new blank W&B profile
+        Button buttonNew = mView.findViewById(R.id.idNew);
+        buttonReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        // Build up what to do when the SAVE button is pressed
+        Button buttonSave = mView.findViewById(R.id.idSave);
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Create a new dialog window
+                final Dialog saveDlg = new Dialog(mContext);
+                saveDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                saveDlg.setContentView(R.layout.save_wnb);
+
+                // Locate some controls of interest that are in the dialog
+                final Button bSave     = saveDlg.findViewById(R.id.idSave);
+                final Button bCancel   = saveDlg.findViewById(R.id.idCancel);
+
+                final EditText etdMake  = saveDlg.findViewById(R.id.idMake);;
+                final EditText etdModel = saveDlg.findViewById(R.id.idModel);;
+                final EditText etdReg   = saveDlg.findViewById(R.id.idReg);;
+
+                final TextView etvMake  = mView.findViewById(R.id.idMake);
+                final TextView etvModel = mView.findViewById(R.id.idModel);
+                final TextView etvReg   = mView.findViewById(R.id.idReg);
+
+                // Set what to do when the SAVE button is clicked.
+                bSave.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Get the user inputted fields
+                        CharSequence make  = etdMake.getText();
+                        CharSequence model = etdModel.getText();
+                        CharSequence reg   = etdReg.getText();
+
+                        // They must all be non-zero in length
+                        if(make.length() == 0 || model.length() == 0 || reg.length() == 0) {
+                            Toast.makeText(mContext, "Please correct this error", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Save this W&B profile to storage
+
+                        // Set the make/model/reg values of the main window
+                        etvMake.setText(make);
+                        etvModel.setText(model);
+                        etvReg.setText(reg);
+
+                        // All done, close out
+                        saveDlg.dismiss();
+                    }
+                });
+
+                // If cancel is pressed, then do nothing except close out the dialog
+                bCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        saveDlg.dismiss();
+                    }
+                });
+
+                // Set the make/model/reg values of the dialog to the ones that are showing
+                // in the main view
+                etdMake.setText(etvMake.getText());
+                etdModel.setText(etvModel.getText());
+                etdReg.setText(etvReg.getText());
+
+                // Dialog is ready, display it
+                saveDlg.show();
+            }
+        });
+
     }
 
     // Populate the display area with the values for the specified aircraft
-    private void populate() {
+    private void populate(AircraftSpecs acData) {
 
-        TextView makeAndModel = mView.findViewById(R.id.idMakeAndModel);
-        makeAndModel.setText(mACData.mMake + " " + mACData.mModel + " " + mACData.mReg);
+        TextView make = mView.findViewById(R.id.idMake);
+        make.setText(acData.make());
+
+        TextView model = mView.findViewById(R.id.idModel);
+        model.setText(acData.model());
+
+        TextView reg = mView.findViewById(R.id.idReg);
+        reg.setText(acData.reg());
 
         TextView cgMin = mView.findViewById(R.id.idCGMin);
-        cgMin.setText(Float.toString(mACData.mCGMin));
+        cgMin.setText(Float.toString(acData.cgMin()));
 
         TextView cgMax = mView.findViewById(R.id.idCGMax);
-        cgMax.setText(Float.toString(mACData.mCGMax));
+        cgMax.setText(Float.toString(acData.cgMax()));
 
         TextView grossWT = mView.findViewById(R.id.idCGGrossWT);
-        grossWT.setText(Float.toString(mACData.mGross));
+        grossWT.setText(Float.toString(acData.gross()));
 
-        for(armEntry ae : mACData.mAEList) {
-            TextView name     = mView.findViewById(idNames[ae.mIdx]);
-            TextView location = mView.findViewById(idLocations[ae.mIdx]);
-            TextView weight   = mView.findViewById(idWeights[ae.mIdx]);
+        for(AircraftSpecs.ArmEntry ae : acData.aeList()) {
+            TextView name     = mView.findViewById(idNames[ae.idx()]);
+            TextView location = mView.findViewById(idLocations[ae.idx()]);
+            TextView weight   = mView.findViewById(idWeights[ae.idx()]);
 
-            name.setText(ae.mDescription);
-            if(!ae.mDescription.isEmpty()) {
-                location.setText(Float.toString(ae.mLocation));
-                weight.setText(Float.toString(ae.mWeight));
+            name.setText(ae.description());
+            if(!ae.description().isEmpty()) {
+                location.setText(Float.toString(ae.location()));
+                weight.setText(Float.toString(ae.weight()));
             } else {
                 location.setText("");
                 weight.setText("");
@@ -261,6 +338,15 @@ public class WnbActivity extends Activity {
             }
         }
 
+        TextView cgMin = mView.findViewById(R.id.idCGMin);
+        float fCGMin = Float.parseFloat(cgMin.getText().toString());
+
+        TextView cgMax = mView.findViewById(R.id.idCGMax);
+        float fCGMax = Float.parseFloat(cgMax.getText().toString());
+
+        TextView grossWT = mView.findViewById(R.id.idCGGrossWT);
+        float fCGGrossWT = Float.parseFloat(grossWT.getText().toString());
+
         float cg = WT > 0 ? arm / WT : 0;
 
         boolean cgOK = true;
@@ -270,9 +356,11 @@ public class WnbActivity extends Activity {
         if(cg == 0) {
             cgView.setBackgroundColor(Color.WHITE);
         } else {
-            if (cg <= mACData.mCGMax && cg >= mACData.mCGMin) {
+            if (cg <= fCGMax && cg >= fCGMin) {
+                cgView.setTextColor(Color.BLACK);
                 cgView.setBackgroundColor(Color.GREEN);
             } else {
+                cgView.setTextColor(Color.WHITE);
                 cgView.setBackgroundColor(Color.RED);
                 cgOK = false;
             }
@@ -283,33 +371,35 @@ public class WnbActivity extends Activity {
         if(WT == 0) {
             weightView.setBackgroundColor(Color.WHITE);
         } else {
-            if (WT <= mACData.mGross) {
+            if (WT <= fCGGrossWT) {
+                weightView.setTextColor(Color.BLACK);
                 weightView.setBackgroundColor(Color.GREEN);
             } else {
+                weightView.setTextColor(Color.WHITE);
                 weightView.setBackgroundColor(Color.RED);
                 cgOK = false;
             }
         }
 
         TextView statusView = mView.findViewById(R.id.idStatus);
-        if(mACData.mGross == 0 || mACData.mCGMin == 0 || mACData.mCGMax == 0 || cg ==0 || WT == 0) {
+        if(fCGGrossWT == 0 || fCGMin == 0 || fCGMax == 0 || cg ==0 || WT == 0) {
             statusView.setText("");
             statusView.setBackgroundColor(Color.WHITE);
         } else {
             if (cgOK) {
-                statusView.setText("OK !");
+                statusView.setText(R.string.CGOK);
+                statusView.setTextColor(Color.BLACK);
                 statusView.setBackgroundColor(Color.GREEN);
             } else {
-                statusView.setText("FAIL !");
+                statusView.setText(R.string.CGFail);
+                statusView.setTextColor(Color.WHITE);
                 statusView.setBackgroundColor(Color.RED);
             }
         }
     }
 
-    /** Defines callbacks for service binding, passed to bindService() */
-    /**
-     * 
-     */
+    // Defines callbacks for service binding, passed to bindService()
+
     private ServiceConnection mConnection = new ServiceConnection() {
 
         /*
@@ -443,39 +533,37 @@ public class WnbActivity extends Activity {
 	    }
     }
 
-    private acWNB getRV10() {
-        armEntry ae0 = new armEntry (0, "Left Main", 124.4f, 581f);
-        armEntry ae1 = new armEntry (1, "Right Main", 124.4f, 579f);
-        armEntry ae2 = new armEntry (2, "Nose/Tail", 50.4f, 342f);
-        armEntry ae3 = new armEntry (3, "Front Seat Pax", 114.58f, 180f);
-        armEntry ae4 = new armEntry (4, "Rear Seat Pax", 151.26f, 0f);
-        armEntry ae5 = new armEntry (5, "Fuel 1", 108.9f, 60f);
-        armEntry ae6 = new armEntry (6, "Fuel 2", 0f, 0f);
-        armEntry ae7 = new armEntry (7, "Baggage 1", 173.5f, 0f);
-        armEntry ae8 = new armEntry (8, "Baggage 2", 0f, 0f);
-        armEntry ae9 = new armEntry (9, "", 0f, 0f);
+    private AircraftSpecs getRV10() {
+        AircraftSpecs as = new AircraftSpecs("Vans", "RV10", "N820TX", 2700, 107.84f, 116.24f);
 
-        armEntry[] armList = {ae0, ae1, ae2, ae3, ae4, ae5, ae6, ae7, ae8, ae9};
+        as.addArm(as.new ArmEntry("Left Main", 124.4f, 581f));
+        as.addArm(as.new ArmEntry("Right Main", 124.4f, 579f));
+        as.addArm(as.new ArmEntry("Nose", 50.4f, 342f));
+        as.addArm(as.new ArmEntry("Front Seat Pax", 114.58f, 180f));
+        as.addArm(as.new ArmEntry("Rear Seat Pax", 151.26f, 0f));
+        as.addArm(as.new ArmEntry("Fuel", 108.9f, 60f));
+        as.addArm(as.new ArmEntry("Baggage", 173.5f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
 
-
-        return new acWNB("Vans", "RV10", "N820TX", 2700, 107.84f, 116.24f, armList);
+        return as;
     }
 
-    private acWNB getDefault() {
-        armEntry ae0 = new armEntry (0, "Left Main", 0f, 0f);
-        armEntry ae1 = new armEntry (1, "Right Main", 0f, 0f);
-        armEntry ae2 = new armEntry (2, "Nose/Tail", 0f, 0f);
-        armEntry ae3 = new armEntry (3, "Front Seat Pax", 0f, 0f);
-        armEntry ae4 = new armEntry (4, "Fuel 1", 0f, 0f);
-        armEntry ae5 = new armEntry (5, "Baggage 1", 0f, 0f);
-        armEntry ae6 = new armEntry (6, "", 0f, 0f);
-        armEntry ae7 = new armEntry (7, "", 0f, 0f);
-        armEntry ae8 = new armEntry (8, "", 0f, 0f);
-        armEntry ae9 = new armEntry (9, "", 0f, 0f);
+    private AircraftSpecs getDefault() {
+        AircraftSpecs as = new AircraftSpecs("Default", "Aircraft", "N123AB", 0, 0f, 0f);
 
-        armEntry[] armList = {ae0, ae1, ae2, ae3, ae4, ae5, ae6, ae7, ae8, ae9};
+        as.addArm(as.new ArmEntry("Left Main", 0f, 0f));
+        as.addArm(as.new ArmEntry("Right Main", 0f, 0f));
+        as.addArm(as.new ArmEntry("Nose/Tail", 0f, 0f));
+        as.addArm(as.new ArmEntry("Front Seat Pax", 0f, 0f));
+        as.addArm(as.new ArmEntry("Fuel 1", 0f, 0f));
+        as.addArm(as.new ArmEntry("Baggage 1", 0f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
+        as.addArm(as.new ArmEntry("", 0f, 0f));
 
-
-        return new acWNB("Default", "Aircraft", "N123AB", 0, 0f, 0f, armList);
+        return as;
     }
 }

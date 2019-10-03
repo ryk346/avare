@@ -109,6 +109,7 @@ public class WebAppWnbInterface {
         wnbs.add(new WeightAndBalance(WeightAndBalance.WNB_C172R));
         wnbs.add(new WeightAndBalance(WeightAndBalance.WNB_PA23_250));
         wnbs.add(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B));
+        wnbs.add(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10));
     }
 
     /**

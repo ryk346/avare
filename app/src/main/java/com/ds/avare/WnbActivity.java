@@ -199,7 +199,7 @@ public class WnbActivity extends Activity {
                 int idx = 0;
                 final String[] acProfiles = new String[mACData.size()];
                 for(AircraftSpecs as : mACData){
-                    acProfiles[idx++] = as.make() + " " + as.model() + " " + as.reg();
+                    acProfiles[idx++] = as.getMake() + " " + as.getModel() + " " + as.getReg();
                 }
 
                 DecoratedAlertDialogBuilder dlgBldr = new DecoratedAlertDialogBuilder(WnbActivity.this);
@@ -319,30 +319,30 @@ public class WnbActivity extends Activity {
     private void populate(AircraftSpecs acData) {
 
         TextView make = mView.findViewById(R.id.idMake);
-        make.setText(acData.make());
+        make.setText(acData.getMake());
 
         TextView model = mView.findViewById(R.id.idModel);
-        model.setText(acData.model());
+        model.setText(acData.getModel());
 
         TextView reg = mView.findViewById(R.id.idReg);
-        reg.setText(acData.reg());
+        reg.setText(acData.getReg());
 
         TextView cgMin = mView.findViewById(R.id.idCGMin);
-        cgMin.setText(Float.toString(acData.cgMin()));
+        cgMin.setText(Float.toString(acData.getCGMin()));
 
         TextView cgMax = mView.findViewById(R.id.idCGMax);
-        cgMax.setText(Float.toString(acData.cgMax()));
+        cgMax.setText(Float.toString(acData.getCGMax()));
 
         TextView grossWT = mView.findViewById(R.id.idGross);
-        grossWT.setText(Float.toString(acData.gross()));
+        grossWT.setText(Float.toString(acData.getGross()));
 
         TextView vEmpty = mView.findViewById(R.id.idEmpty);
-        vEmpty.setText(Float.toString(acData.empty()));
+        vEmpty.setText(Float.toString(acData.getEmpty()));
 
         TextView cgEnv = mView.findViewById(R.id.idCGEnv);
-        cgEnv.setText(acData.cgEnv());
+        cgEnv.setText(acData.getCGEnv());
 
-        for(AircraftSpecs.ArmEntry ae : acData.aeList()) {
+        for(AircraftSpecs.ArmEntry ae : acData.getAEList()) {
             TextView name     = mView.findViewById(idNames[ae.idx()]);
             TextView location = mView.findViewById(idLocations[ae.idx()]);
             TextView weight   = mView.findViewById(idWeights[ae.idx()]);

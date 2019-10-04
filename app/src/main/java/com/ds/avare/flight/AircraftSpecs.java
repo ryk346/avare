@@ -46,28 +46,28 @@ public class AircraftSpecs {
         fromJSon(acData);
     }
 
-    public AircraftSpecs(String jsonString) {
+    public void fromString(String jsonString) {
         try {
             fromJSon(new JSONObject(jsonString));
         } catch (Exception ignore) { }
     }
 
     public void addArm(ArmEntry armEntry) {
-        armEntry.mIdx = aeList().size();
+        armEntry.mIdx = mAEList.size();
         mAEList.add(armEntry);
     }
 
-    public String make()  { return mMake; }
-    public String model() { return mModel; }
-    public String reg()   { return mReg; }
-    public float gross()  { return mGross; }
-    public float empty()  { return mEmpty; }
-    public float cgMin()  { return mCGMin; }
-    public float cgMax()  { return mCGMax; }
-    public String cgEnv() { return mCGEnv; }
-    public float weight() { return mWeight; }
-    public float cg()     { return mCG; }
-    public LinkedList<ArmEntry> aeList() { return mAEList; }
+    public String getMake()  { return mMake; }
+    public String getModel() { return mModel; }
+    public String getReg()   { return mReg; }
+    public float getGross()  { return mGross; }
+    public float getEmpty()  { return mEmpty; }
+    public float getCGMin()  { return mCGMin; }
+    public float getCGMax()  { return mCGMax; }
+    public String getCGEnv() { return mCGEnv; }
+    public float getWeight() { return mWeight; }
+    public float getCG()     { return mCG; }
+    public LinkedList<ArmEntry> getAEList() { return mAEList; }
 
     public void setMake(String make) { mMake = make; }
     public void setModel(String model) { mModel = model; }

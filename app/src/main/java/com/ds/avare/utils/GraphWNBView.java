@@ -23,15 +23,19 @@ import android.widget.TextView;
 import com.ds.avare.R;
 import com.ds.avare.flight.AircraftSpecs;
 
+import java.util.LinkedList;
+
 /**
  * Draw the weight and balance envelope using the data provided
  * @author Ron Walker
  *
  */
 public class GraphWNBView extends TextView {
-    AircraftSpecs mACData;
+    AircraftSpecs mACSpecs = new AircraftSpecs();
     Paint mPaint = new Paint();
     Path mPath = new Path();
+    float[] mCGPoints = new float[100];
+    final int mMargin = 25;
 
     public GraphWNBView(Context ctx) {
         super(ctx);
@@ -48,27 +52,28 @@ public class GraphWNBView extends TextView {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        AircraftSpecs acSpecs = new AircraftSpecs(getText().toString());
-        float maxW = acSpecs.gross();
-        float minW = acSpecs.empty();
-        float maxA = acSpecs.cgMax();
-        float minA = acSpecs.cgMin();
-        float cgA  = acSpecs.cg();
-        float cgW  = acSpecs.weight();
-        String[] envPoints = acSpecs.cgEnv().split(" ");
+        // Generic index local variable
+        int idx = 0;
 
-        int idxFloat = 0;
-        float[] cgPoints = new float[envPoints.length * 2];
+        // Fill our our native aircraft specs object from the string text that
+        // was passed in to the control
+        mACSpecs.fromString(getText().toString());
+
+        // Extract individual points for the CG Envelope
+        String[] envPoints = mACSpecs.getCGEnv().split(" ");
+
+        // Parse each one for the ARM/WT location
         for(String envPoint : envPoints) {
             String[] xy = envPoint.split(",");
-            cgPoints[idxFloat++] = Helper.parseFloat(xy[0]);
-            cgPoints[idxFloat++] = Helper.parseFloat(xy[1]);
+            mCGPoints[idx++] = (Helper.parseFloat(xy[0]));
+            mCGPoints[idx++] = (Helper.parseFloat(xy[1]));
         }
 
+        // Display metrics we need
         int iWidth  = getWidth();
         int iHeight = getHeight();
-        int iMargin = 25;
 
+        // Default the paint brush to fill the area
         mPaint.setStyle(Paint.Style.FILL);
 
         // Fill the background with RED
@@ -78,26 +83,31 @@ public class GraphWNBView extends TextView {
         // Now draw the inner GREEN based on the segments
         mPaint.setColor(Color.rgb(0x00, 0xA0, 0x00));
 
-        float diffW = maxW - minW;          // Weight spread
-        float ratioY = (iHeight - 2 * iMargin) / diffW; // vertical ratio
+        // The weight is along the vertical Y axis
+        float diffW = mACSpecs.getGross() - mACSpecs.getEmpty();  // Weight spread
+        float ratioY = (iHeight - 2 * mMargin) / diffW;     // vertical ratio
 
-        float diffA = maxA - minA;          // ARM spread
-        float ratioX = (iWidth - 2 * iMargin) / diffA;  // Horizontal ratio
+        // The arm is along the horizontal X axis
+        float diffA = mACSpecs.getCGMax() - mACSpecs.getCGMin();  // ARM spread
+        float ratioX = (iWidth - 2 * mMargin) / diffA;      // Horizontal ratio
 
-        for(int idx = 0; idx < cgPoints.length; idx += 2) {
-            cgPoints[idx]     = (cgPoints[idx]     - minA) * ratioX + iMargin;
-            cgPoints[idx + 1] = iHeight - (cgPoints[idx + 1] - minW) * ratioY - iMargin;
+        // Recalc the location of each point based upon the display ratio
+        for(idx = 0; idx < envPoints.length * 2; idx += 2) {
+            mCGPoints[idx] = (mCGPoints[idx] - mACSpecs.getCGMin()) * ratioX + mMargin;
+            mCGPoints[idx + 1] = iHeight - (mCGPoints[idx + 1] - mACSpecs.getEmpty()) * ratioY - mMargin;
         }
 
+        // Draw all the points into the Path, then give the path to the canvas
         mPath.reset();
-        mPath.moveTo(cgPoints[0], cgPoints[1]);
-        for(int idx = 2; idx < cgPoints.length; idx += 2) {
-            mPath.lineTo(cgPoints[idx], cgPoints[idx + 1]);
+        mPath.moveTo(mCGPoints[0], mCGPoints[1]);
+        for(idx = 2; idx < envPoints.length * 2; idx += 2) {
+            mPath.lineTo(mCGPoints[idx], mCGPoints[idx + 1]);
         }
         canvas.drawPath(mPath, mPaint);
 
-        float cgX = (cgA - minA) * ratioX + iMargin;
-        float cgY = iHeight - (cgW - minW) * ratioY - iMargin;
+        // Draw a circle at the point of our calculated CG
+        float cgX = (mACSpecs.getCG() - mACSpecs.getCGMin()) * ratioX + mMargin;
+        float cgY = iHeight - (mACSpecs.getWeight() - mACSpecs.getEmpty()) * ratioY - mMargin;
         mPaint.setColor(Color.BLACK);
         canvas.drawCircle(cgX, cgY, 5, mPaint);
 

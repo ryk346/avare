@@ -905,6 +905,21 @@ public class Helper {
         return Helper.truncGeo(lat) + "&" + Helper.truncGeo(lon);
     }
 
+    // Parse a float from a string catching the exception and returning
+    // the default value.
+    public static float parseFloat(String s, float d) {
+        float f = d;
+
+        try {
+            f = Float.parseFloat(s);
+        } catch (Exception ignore) { }
+
+        return f;
+    }
+
+    public static float parseFloat(String s) {
+        return parseFloat(s, 0);
+    }
 
     private static final Pattern ICAO_GPS_PATTERN = Pattern.compile(
             "(([^@]*)@)?" +

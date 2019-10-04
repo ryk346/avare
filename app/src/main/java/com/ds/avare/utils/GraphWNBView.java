@@ -18,7 +18,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.ds.avare.R;
 import com.ds.avare.flight.AircraftSpecs;
 
 /**
@@ -26,7 +28,7 @@ import com.ds.avare.flight.AircraftSpecs;
  * @author Ron Walker
  *
  */
-public class GraphWNBView extends ImageView {
+public class GraphWNBView extends TextView {
     AircraftSpecs mACData;
     Paint mPaint = new Paint();
     Path mPath = new Path();
@@ -41,15 +43,6 @@ public class GraphWNBView extends ImageView {
 
     public GraphWNBView(Context ctx, AttributeSet attrs, int defStyleAttr) {
         super(ctx, attrs, defStyleAttr);
-    }
-
-    class coord {
-        float mX;
-        float mY;
-        coord(float x, float y) {
-            mX = x;
-            mY = y;
-        }
     }
 
     @Override
@@ -72,6 +65,14 @@ public class GraphWNBView extends ImageView {
                 47.3f, 1650f
 
         };
+
+        AircraftSpecs acSpecs = new AircraftSpecs(getText().toString());
+        maxW = acSpecs.gross();
+        minW = acSpecs.empty();
+        maxA = acSpecs.cgMax();
+        minA = acSpecs.cgMin();
+        cgA  = acSpecs.cg();
+        cgW  = acSpecs.weight();
 
         mPaint.setStyle(Paint.Style.FILL);
 

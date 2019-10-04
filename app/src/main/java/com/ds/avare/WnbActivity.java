@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -156,7 +155,7 @@ public class WnbActivity extends Activity {
         EditText cgMax = mView.findViewById(R.id.idCGMax);
         cgMax.setOnFocusChangeListener(doRecalc);
 
-        EditText cgGrossWT = mView.findViewById(R.id.idCGGrossWT);
+        EditText cgGrossWT = mView.findViewById(R.id.idGross);
         cgGrossWT.setOnFocusChangeListener(doRecalc);
 
         // Fetch all of the WnB info that we have in storage
@@ -214,6 +213,9 @@ public class WnbActivity extends Activity {
                 Dialog graphDlg = new Dialog(mContext);
                 graphDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 graphDlg.setContentView(R.layout.graph_wnb);
+                TextView tvPath = graphDlg.findViewById(R.id.idGraph);
+                String jsonString = extract().toJSon().toString();
+                tvPath.setText(jsonString);
                 graphDlg.show();
             }
         });
@@ -307,8 +309,14 @@ public class WnbActivity extends Activity {
         TextView cgMax = mView.findViewById(R.id.idCGMax);
         cgMax.setText(Float.toString(acData.cgMax()));
 
-        TextView grossWT = mView.findViewById(R.id.idCGGrossWT);
+        TextView grossWT = mView.findViewById(R.id.idGross);
         grossWT.setText(Float.toString(acData.gross()));
+
+        TextView vEmpty = mView.findViewById(R.id.idEmpty);
+        vEmpty.setText(Float.toString(acData.empty()));
+
+        TextView cgEnv = mView.findViewById(R.id.idCGEnv);
+        cgEnv.setText(acData.cgEnv());
 
         for(AircraftSpecs.ArmEntry ae : acData.aeList()) {
             TextView name     = mView.findViewById(idNames[ae.idx()]);
@@ -324,6 +332,53 @@ public class WnbActivity extends Activity {
                 weight.setText("");
             }
         }
+    }
+
+    // Extract all of the dialog values and build an explicit object
+    private AircraftSpecs extract() {
+
+        AircraftSpecs acData = new AircraftSpecs();
+
+        TextView vMake = mView.findViewById(R.id.idMake);
+        acData.setMake(vMake.getText().toString());
+
+        TextView vModel = mView.findViewById(R.id.idModel);
+        acData.setModel(vModel.getText().toString());
+
+        TextView vReg = mView.findViewById(R.id.idReg);
+        acData.setReg(vReg.getText().toString());
+
+        TextView vCGMin = mView.findViewById(R.id.idCGMin);
+        acData.setCGMin(Helper.parseFloat(vCGMin.getText().toString()));
+
+        TextView vCGMax = mView.findViewById(R.id.idCGMax);
+        acData.setCGMax(Helper.parseFloat(vCGMax.getText().toString()));
+
+        TextView vEmpty = mView.findViewById(R.id.idEmpty);
+        acData.setEmpty(Helper.parseFloat(vEmpty.getText().toString()));
+
+        TextView vGross = mView.findViewById(R.id.idGross);
+        acData.setGross(Helper.parseFloat(vGross.getText().toString()));
+
+        TextView vCGEnv = mView.findViewById(R.id.idCGEnv);
+        acData.setCGEnv(vCGEnv.getText().toString());
+
+        TextView vWeight = mView.findViewById(R.id.idWeight);
+        acData.setWeight(Helper.parseFloat(vWeight.getText().toString()));
+
+        TextView vCG = mView.findViewById(R.id.idCG);
+        acData.setCG(Helper.parseFloat(vCG.getText().toString()));
+
+        for(int idx = 0; idx < idNames.length; idx++) {
+            TextView vNames     = mView.findViewById(idNames[idx]);
+            TextView vLocations = mView.findViewById(idLocations[idx]);
+            TextView vWeights   = mView.findViewById(idWeights[idx]);
+            acData.addArm(new AircraftSpecs().new ArmEntry(
+                    vNames.getText().toString(),
+                    Helper.parseFloat(vLocations.getText().toString()),
+                    Helper.parseFloat(vWeights.getText().toString())));
+        }
+        return acData;
     }
 
     // Read all of the edit controls to calculate the CG and gross weight.
@@ -353,7 +408,7 @@ public class WnbActivity extends Activity {
         TextView cgMax = mView.findViewById(R.id.idCGMax);
         float fCGMax = Float.parseFloat(cgMax.getText().toString());
 
-        TextView grossWT = mView.findViewById(R.id.idCGGrossWT);
+        TextView grossWT = mView.findViewById(R.id.idGross);
         float fCGGrossWT = Float.parseFloat(grossWT.getText().toString());
 
         float cg = WT > 0 ? arm / WT : 0;

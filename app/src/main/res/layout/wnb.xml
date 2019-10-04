@@ -147,7 +147,7 @@ Redistribution and use in source and binary forms, with or without modification,
 						android:textStyle="bold" />
 
 					<EditText
-						android:id="@+id/idCGGrossWT"
+						android:id="@+id/idGross"
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
@@ -564,5 +564,18 @@ Redistribution and use in source and binary forms, with or without modification,
 
 	</LinearLayout>
 
+	<TextView
+		android:id="@+id/idEmpty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/idllSLEButtons"
+		android:visibility="invisible" />
+
+	<TextView
+		android:id="@+id/idCGEnv"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/idllSLEButtons"
+		android:visibility="invisible" />
 
 </RelativeLayout>

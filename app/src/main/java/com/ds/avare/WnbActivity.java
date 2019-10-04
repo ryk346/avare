@@ -29,6 +29,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -168,6 +170,28 @@ public class WnbActivity extends Activity {
         populate(mACData.getLast());
         calcAndSetCG();
 
+        // The display toggle button in the upper left will close/open the top calculation area
+        // This is useful on small displays to be able to view the ARM stations without clutter.
+        final ImageButton buttonToggle = mView.findViewById(R.id.idToggle);
+        final TableLayout vCGnWeight = mView.findViewById(R.id.idCGnWeight);
+        buttonToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(vCGnWeight.getVisibility()) {
+                    case View.VISIBLE:
+                        vCGnWeight.setVisibility(View.GONE);
+                        buttonToggle.setImageDrawable(getResources().getDrawable(android.R.drawable.arrow_up_float));
+                        break;
+
+                    default:
+                        vCGnWeight.setVisibility(View.VISIBLE);
+                        buttonToggle.setImageDrawable(getResources().getDrawable(android.R.drawable.arrow_down_float));
+                        break;
+                }
+            }
+        });
+
+        // Load a saved profile into the display area.
         Button buttonLoad = mView.findViewById(R.id.idLoad);
         buttonLoad.setOnClickListener(new View.OnClickListener() {
             @Override

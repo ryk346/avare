@@ -48,31 +48,26 @@ public class GraphWNBView extends TextView {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        float maxW = 2450f;
-        float minW = 1650f;
-        float maxA = 50f;
-        float minA = 30f;
-
-        float cgA = 42.12f;
-        float cgW = 2419.8f;
-
-        float[] drawPoints = new float[] {
-                47.3f, 1650f,
-                35f,   1650f,
-                35f,   1950f,
-                40f,   2450f,
-                47.3f, 2450f,
-                47.3f, 1650f
-
-        };
-
         AircraftSpecs acSpecs = new AircraftSpecs(getText().toString());
-        maxW = acSpecs.gross();
-        minW = acSpecs.empty();
-        maxA = acSpecs.cgMax();
-        minA = acSpecs.cgMin();
-        cgA  = acSpecs.cg();
-        cgW  = acSpecs.weight();
+        float maxW = acSpecs.gross();
+        float minW = acSpecs.empty();
+        float maxA = acSpecs.cgMax();
+        float minA = acSpecs.cgMin();
+        float cgA  = acSpecs.cg();
+        float cgW  = acSpecs.weight();
+        String[] envPoints = acSpecs.cgEnv().split(" ");
+
+        int idxFloat = 0;
+        float[] cgPoints = new float[envPoints.length * 2];
+        for(String envPoint : envPoints) {
+            String[] xy = envPoint.split(",");
+            cgPoints[idxFloat++] = Helper.parseFloat(xy[0]);
+            cgPoints[idxFloat++] = Helper.parseFloat(xy[1]);
+        }
+
+        int iWidth  = getWidth();
+        int iHeight = getHeight();
+        int iMargin = 25;
 
         mPaint.setStyle(Paint.Style.FILL);
 
@@ -84,25 +79,25 @@ public class GraphWNBView extends TextView {
         mPaint.setColor(Color.rgb(0x00, 0xA0, 0x00));
 
         float diffW = maxW - minW;          // Weight spread
-        float ratioY = getHeight() / diffW; // vertical ratio
+        float ratioY = (iHeight - 2 * iMargin) / diffW; // vertical ratio
 
         float diffA = maxA - minA;          // ARM spread
-        float ratioX = getWidth() / diffA;  // Horizontal ratio
+        float ratioX = (iWidth - 2 * iMargin) / diffA;  // Horizontal ratio
 
-        for(int idx = 0; idx < drawPoints.length; idx += 2) {
-            drawPoints[idx]     = (drawPoints[idx]     - minA) * ratioX;
-            drawPoints[idx + 1] = getHeight() - (drawPoints[idx + 1] - minW) * ratioY;
+        for(int idx = 0; idx < cgPoints.length; idx += 2) {
+            cgPoints[idx]     = (cgPoints[idx]     - minA) * ratioX + iMargin;
+            cgPoints[idx + 1] = iHeight - (cgPoints[idx + 1] - minW) * ratioY - iMargin;
         }
 
         mPath.reset();
-        mPath.moveTo(drawPoints[0], drawPoints[1]);
-        for(int idx = 2; idx < drawPoints.length; idx += 2) {
-            mPath.lineTo(drawPoints[idx], drawPoints[idx + 1]);
+        mPath.moveTo(cgPoints[0], cgPoints[1]);
+        for(int idx = 2; idx < cgPoints.length; idx += 2) {
+            mPath.lineTo(cgPoints[idx], cgPoints[idx + 1]);
         }
         canvas.drawPath(mPath, mPaint);
 
-        float cgX = (cgA - minA) * ratioX;
-        float cgY = getHeight() - (cgW - minW) * ratioY;
+        float cgX = (cgA - minA) * ratioX + iMargin;
+        float cgY = iHeight - (cgW - minW) * ratioY - iMargin;
         mPaint.setColor(Color.BLACK);
         canvas.drawCircle(cgX, cgY, 5, mPaint);
 

@@ -583,8 +583,9 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="CGMin">CG Fore : </string>
     <string name="CGMax">CG Aft : </string>
     <string name="Status">Status : </string>
-    <string name="GrossWT">Gross WT : </string>
-    <string name="TOWeight">TO Weight : </string>
+    <string name="GrossWT">Gross : </string>
+    <string name="TOWeight">Weight : </string>
+    <string name="Empty">Empty : </string>
     <string name="Description">Description</string>
     <string name="Location">Location</string>
     <string name="Weight">Weight</string>

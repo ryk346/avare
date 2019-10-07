@@ -24,8 +24,6 @@ import java.util.LinkedList;
  *
  */
 public class WeightAndBalance {
-
-
     JSONObject mWnb;
 
     public static final int WNB_DEFAULT = 0;
@@ -34,6 +32,7 @@ public class WeightAndBalance {
     public static final int WNB_PA23_250 = 3;
     public static final int WNB_VANS_RV10 = 4;
     public static final int WNB_GRUMMAN_AA1A = 5;
+    public static final int WNB_VANS_RV7A = 6;
 
     public WeightAndBalance(int type) {
         String ex = getDefault();
@@ -51,7 +50,6 @@ public class WeightAndBalance {
                 ex = getExamplePA23250();
                 break;
 
-
             case WNB_VANS_RV10:
                 ex = getExampleRV10();
                 break;
@@ -59,13 +57,15 @@ public class WeightAndBalance {
             case WNB_GRUMMAN_AA1A:
                 ex = getExampleAA1A();
                 break;
+
+            case WNB_VANS_RV7A:
+                ex = getExampleRV7a();
+                break;
         }
 
         try {
             mWnb = new JSONObject(ex);
-        } catch (JSONException ignore) {
-
-        }
+        } catch (JSONException ignore) { }
     }
 
     /**
@@ -88,7 +88,7 @@ public class WeightAndBalance {
      * 
      * @return
      */
-    public String getName() {
+    public String getName99() {
         try {
             return mWnb.getString("name");
         } catch (JSONException e) {
@@ -101,7 +101,7 @@ public class WeightAndBalance {
      * @param wnbs
      * @return
      */
-    public static String putWnbsToStorageFormat(LinkedList<WeightAndBalance> wnbs) {
+    public static String putWnbsToStorageFormat_xxx(LinkedList<WeightAndBalance> wnbs) {
         
         JSONArray jsonArr = new JSONArray();
         for(WeightAndBalance w : wnbs) {
@@ -112,12 +112,23 @@ public class WeightAndBalance {
         
         return jsonArr.toString();
     }
-    
+
+    public static String putWnbsToStorageFormat(LinkedList<AircraftSpecs> wnbs) {
+
+        JSONArray jsonArr = new JSONArray();
+        for(AircraftSpecs w : wnbs) {
+
+            JSONObject o = w.toJSon();
+            jsonArr.put(o);
+        }
+        return jsonArr.toString();
+    }
+
     /**
      * Gets an array of WNBs from storage JSON
      * @return
      */
-    public static LinkedList<WeightAndBalance> getWnbsFromStorageFromat(String json) {
+    public static LinkedList<WeightAndBalance> getWnbsFromStorageFormat_xxx(String json) {
         JSONArray jsonArr;
         LinkedList<WeightAndBalance> ret = new LinkedList<WeightAndBalance>();
         try {
@@ -135,6 +146,27 @@ public class WeightAndBalance {
             }
         }
         
+        return ret;
+    }
+
+    public static LinkedList<AircraftSpecs> getWnbsFromStorageFormat(String json) {
+        JSONArray jsonArr;
+        LinkedList<AircraftSpecs> ret = new LinkedList<>();
+        try {
+            jsonArr = new JSONArray(json);
+        } catch (JSONException e) {
+            return ret;
+        }
+
+        for(int i = 0; i < jsonArr.length(); i++) {
+            try {
+                JSONObject o = jsonArr.getJSONObject(i);
+                ret.add(new AircraftSpecs(o));
+            } catch (JSONException e) {
+                continue;
+            }
+        }
+
         return ret;
     }
 
@@ -306,12 +338,53 @@ public class WeightAndBalance {
                 "}";
     }
 
+    public static String getExampleRV7a() {
+        return "{" +
+                "'name'  :'Vans RV7a N123AB'," +
+                "'t_0'   :'Right Main'," +
+                "'w_0'   :'362'," +
+                "'a_0'   :'94.83',"+
+                "'t_1'   :'Left Main'," +
+                "'w_1'   :'361'," +
+                "'a_1'   :'95'," +
+                "'t_2'   :'Nose'," +
+                "'w_2'   :'291'," +
+                "'a_2'   :'40'," +
+                "'t_3'   :'Fuel'," +
+                "'w_3'   :'252'," +
+                "'a_3'   :'80'," +
+                "'t_4'   :'Front Passengers'," +
+                "'w_4'   :'185'," +
+                "'a_4'   :'97.48'," +
+                "'t_5'   :'Baggage'," +
+                "'w_5'   :'25'," +
+                "'a_5'   :'126.78'," +
+                "'t_6'   :''," +
+                "'w_6'   :''," +
+                "'a_6'   :''," +
+                "'t_7'   :''," +
+                "'w_7'   :''," +
+                "'a_7'   :''," +
+                "'t_8'   :''," +
+                "'w_8'   :''," +
+                "'a_8'   :''," +
+                "'t_9'   :''," +
+                "'w_9'   :''," +
+                "'a_9'   :''," +
+                "'max_w' :'1800'," +
+                "'min_w' :'1014'," +
+                "'max_a' :'86.82'," +
+                "'min_a' :'78.7'," +
+                "'points':''" +
+                "}";
+    }
+
     public static String getExampleAA1A() {
         return "{" +
                 "'name'  :'Grumman AA1A N123AB'," +
                 "'t_0'   :'Empty Weight'," +
-                "'w_0'   :'1007'," +
-                "'a_0'   :'73.9741',"+
+                "'w_0'   :'1005'," +
+                "'a_0'   :'75.227',"+
                 "'t_1'   :'Oil'," +
                 "'w_1'   :'11'," +
                 "'a_1'   :'39'," +
@@ -340,9 +413,9 @@ public class WeightAndBalance {
                 "'w_9'   :''," +
                 "'a_9'   :''," +
                 "'max_w' :'1500'," +
-                "'min_w' :'1007'," +
+                "'min_w' :'1005'," +
                 "'max_a' :'87.38'," +
-                "'min_a' :'75.27'," +
+                "'min_a' :'75.227'," +
                 "'points':''" +
                 "}";
     }

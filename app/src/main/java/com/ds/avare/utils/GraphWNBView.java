@@ -24,6 +24,7 @@ import com.ds.avare.R;
 import com.ds.avare.flight.AircraftSpecs;
 
 import java.util.LinkedList;
+import java.util.Locale;
 
 /**
  * Draw the weight and balance envelope using the data provided
@@ -32,10 +33,10 @@ import java.util.LinkedList;
  */
 public class GraphWNBView extends TextView {
     AircraftSpecs mACSpecs = new AircraftSpecs();
-    Paint mPaint = new Paint();
-    Path mPath = new Path();
-    float[] mCGPoints = new float[100];
-    final int mMargin = 25;
+    Paint mPaint = new Paint(); // How to draw
+    Path mPath   = new Path();  // Shape to draw
+    float[] mCGPoints = new float[100]; // Assume at most 50 points in the CG envelope
+    final int mMargin = 25;             // Margin around entire image
 
     public GraphWNBView(Context ctx) {
         super(ctx);
@@ -56,10 +57,11 @@ public class GraphWNBView extends TextView {
         int idx = 0;
 
         // Fill our our native aircraft specs object from the string text that
-        // was passed in to the control. If we dont' have those points, auto generate
-        // a CG Envelope plot
+        // was passed in to the control.
         mACSpecs.fromString(getText().toString());
-        boolean bAuto = mACSpecs.getCGEnv().isEmpty() ? true : false;
+
+        // If the CG Env spec string is empty, auto-generate one
+        boolean bAuto = mACSpecs.getCGEnv().isEmpty();
 
         // Auto plot is 4 corners based on the CG min/max and Empty/Gross weights
         float minArmGross = mACSpecs.getCGMin() * mACSpecs.getGross();
@@ -68,12 +70,12 @@ public class GraphWNBView extends TextView {
         float maxArmEmpty = mACSpecs.getCGMax() * mACSpecs.getEmpty();
 
         // Extract individual points for the CG Envelope
-        String[] envPoints = (bAuto ? String.format("%f,%f %f,%f %f,%f %f,%f %f,%f",
-                        minArmEmpty,mACSpecs.getEmpty(),
-                        minArmGross,mACSpecs.getGross(),
-                        maxArmGross,mACSpecs.getGross(),
-                        maxArmEmpty,mACSpecs.getEmpty(),
-                        minArmEmpty,mACSpecs.getEmpty())
+        String[] envPoints = (bAuto ? String.format(Locale.getDefault(),"%f,%f %f,%f %f,%f %f,%f %f,%f",
+                        minArmEmpty, mACSpecs.getEmpty(),
+                        minArmGross, mACSpecs.getGross(),
+                        maxArmGross, mACSpecs.getGross(),
+                        maxArmEmpty, mACSpecs.getEmpty(),
+                        minArmEmpty, mACSpecs.getEmpty())
                         : mACSpecs.getCGEnv())
                         .split(" ");
 

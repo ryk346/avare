@@ -1246,7 +1246,15 @@ public class Preferences {
      * @return
      */
     public void putWnbs(String name) {
-        mPref.edit().putString(mContext.getString(R.string.Wnb), name).commit();
+        mPref.edit().putString(mContext.getString(R.string.Wnb), name).apply();
+    }
+
+    public void setDefaultWNB(String name) {
+        mPref.edit().putString("DefaultWNB", name).apply();
+    }
+
+    public String getDefaultWNB() {
+        return mPref.getString("DefaultWNB", "");
     }
 
     public boolean isDefaultAFDImage() {

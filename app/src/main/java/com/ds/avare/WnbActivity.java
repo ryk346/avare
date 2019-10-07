@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.ds.avare.flight.AircraftSpecs;
 import com.ds.avare.flight.WeightAndBalance;
 import com.ds.avare.gps.GpsInterface;
+import com.ds.avare.storage.Preferences;
 import com.ds.avare.utils.DecoratedAlertDialogBuilder;
 import com.ds.avare.utils.Helper;
 
@@ -78,6 +79,10 @@ public class WnbActivity extends Activity {
     private Context mContext;
 
     private LinkedList<AircraftSpecs> mACData = new LinkedList<>();
+
+    private Preferences mPref;
+
+    private int mDefProfiles = 0;
 
     // To keep the GPS active when this tab is being interacted with
     private GpsInterface mGpsInfc = new GpsInterface() {
@@ -121,6 +126,7 @@ public class WnbActivity extends Activity {
         super.onCreate(savedInstanceState);
      
         mContext = this;
+        mPref = new Preferences(mContext);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         mService = null;
@@ -143,34 +149,46 @@ public class WnbActivity extends Activity {
 
         // When any of the WEIGHT fields is exited, do the recalc
         for(int idWeight : idWeights) {
-            EditText etWeight = mView.findViewById(idWeight);
-            etWeight.setOnFocusChangeListener(doRecalc);
+            mView.findViewById(idWeight).setOnFocusChangeListener(doRecalc);
         }
 
         // When any of the LOCATION fields is exited, do the recalc
         for(int idLocation : idLocations) {
-            EditText etLocation = mView.findViewById(idLocation);
-            etLocation.setOnFocusChangeListener(doRecalc);
+            mView.findViewById(idLocation).setOnFocusChangeListener(doRecalc);
         }
 
-        EditText cgMin = mView.findViewById(R.id.idCGMin);
-        cgMin.setOnFocusChangeListener(doRecalc);
+        mView.findViewById(R.id.idCGMin).setOnFocusChangeListener(doRecalc);
+        mView.findViewById(R.id.idCGMax).setOnFocusChangeListener(doRecalc);
+        mView.findViewById(R.id.idGross).setOnFocusChangeListener(doRecalc);
+        mView.findViewById(R.id.idEmpty).setOnFocusChangeListener(doRecalc);
 
-        EditText cgMax = mView.findViewById(R.id.idCGMax);
-        cgMax.setOnFocusChangeListener(doRecalc);
-
-        EditText cgGrossWT = mView.findViewById(R.id.idGross);
-        cgGrossWT.setOnFocusChangeListener(doRecalc);
-
-        // Fetch all of the WnB info that we have in storage
+        // Fetch all of the WnB default info that we know about
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_DEFAULT).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_C172R).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA23_250).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B).getJSON()));
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV7A).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_GRUMMAN_AA1A).getJSON()));
 
-        populate(mACData.getLast());
+        // Set how many default profiles we have
+        mDefProfiles = mACData.size();
+
+        // Add in all of the saved profiles
+        mACData.addAll(WeightAndBalance.getWnbsFromStorageFormat(mPref.getWnbs()));
+
+        // Populate the display with the default profile
+        populate(mACData.getFirst());
+
+        String defProf = mPref.getDefaultWNB(); // Get the most recent profile used
+        for(AircraftSpecs acSpecs : mACData) {  // Search for it in our collection
+            if(defProf.equals(acSpecs.getName())) {
+                populate(acSpecs);              // When found, populate display with that data
+                break;
+            }
+        }
+
+        // Use this data to calc and set the CG info
         calcAndSetCG();
 
         // The display toggle button in the upper left will close/open the top calculation area
@@ -195,14 +213,13 @@ public class WnbActivity extends Activity {
         });
 
         // Load a saved profile into the display area.
-        Button buttonLoad = mView.findViewById(R.id.idLoad);
-        buttonLoad.setOnClickListener(new View.OnClickListener() {
+        mView.findViewById(R.id.idLoad).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int idx = 0;
                 final String[] acProfiles = new String[mACData.size()];
                 for(AircraftSpecs as : mACData){
-                    acProfiles[idx++] = as.getMake() + " " + as.getModel() + " " + as.getReg();
+                    acProfiles[idx++] = as.getName();
                 }
 
                 DecoratedAlertDialogBuilder dlgBldr = new DecoratedAlertDialogBuilder(WnbActivity.this);
@@ -211,6 +228,7 @@ public class WnbActivity extends Activity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                mPref.setDefaultWNB(mACData.get(which).getName());
                                 populate(mACData.get(which));
                                 calcAndSetCG();
                                 dialog.dismiss();
@@ -233,23 +251,20 @@ public class WnbActivity extends Activity {
         });
 
         // Display a color chart showing the W&B
-        Button buttonGraph = mView.findViewById(R.id.idGraph);
-        buttonGraph.setOnClickListener(new View.OnClickListener() {
+        mView.findViewById(R.id.idGraph).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Dialog graphDlg = new Dialog(mContext);
                 graphDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 graphDlg.setContentView(R.layout.graph_wnb);
-                TextView tvPath = graphDlg.findViewById(R.id.idGraph);
-                String jsonString = extract().toJSon().toString();
-                tvPath.setText(jsonString);
+                ((TextView)graphDlg.findViewById(R.id.idGraph)).
+                        setText(extract().toJSon().toString());
                 graphDlg.show();
             }
         });
 
         // Build up what to do when the SAVE button is pressed
-        Button buttonSave = mView.findViewById(R.id.idSave);
-        buttonSave.setOnClickListener(new View.OnClickListener() {
+        mView.findViewById(R.id.idSaveDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -259,63 +274,129 @@ public class WnbActivity extends Activity {
                 saveDlg.setContentView(R.layout.save_wnb);
 
                 // Locate some controls of interest that are in the dialog
-                final Button bSave     = saveDlg.findViewById(R.id.idSave);
-                final Button bCancel   = saveDlg.findViewById(R.id.idCancel);
+                final EditText etdMake  = saveDlg.findViewById(R.id.idMake);
+                final EditText etdModel = saveDlg.findViewById(R.id.idModel);
+                final EditText etdReg   = saveDlg.findViewById(R.id.idReg);
 
-                final EditText etdMake  = saveDlg.findViewById(R.id.idMake);;
-                final EditText etdModel = saveDlg.findViewById(R.id.idModel);;
-                final EditText etdReg   = saveDlg.findViewById(R.id.idReg);;
-
-                final TextView etvMake  = mView.findViewById(R.id.idMake);
-                final TextView etvModel = mView.findViewById(R.id.idModel);
-                final TextView etvReg   = mView.findViewById(R.id.idReg);
+                etdMake.setText (((TextView) mView.findViewById(R.id.idMake)). getText());
+                etdModel.setText(((TextView) mView.findViewById(R.id.idModel)).getText());
+                etdReg.setText  (((TextView) mView.findViewById(R.id.idReg))  .getText());
 
                 // Set what to do when the SAVE button is clicked.
-                bSave.setOnClickListener(new View.OnClickListener() {
+                saveDlg.findViewById(R.id.idSave).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         // Get the user inputted fields
-                        CharSequence make  = etdMake.getText();
-                        CharSequence model = etdModel.getText();
-                        CharSequence reg   = etdReg.getText();
+                        String make  = etdMake.getText().toString();
+                        String model = etdModel.getText().toString();
+                        String reg   = etdReg.getText().toString();
 
                         // They must all be non-zero in length
                         if(make.length() == 0 || model.length() == 0 || reg.length() == 0) {
-                            Toast.makeText(mContext, "Please correct this error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "Make/Model/Registration needs to be filled out", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        // Save this W&B profile to storage
+                        // Create a new profile from the dialog contents
+                        AircraftSpecs acSpecs = extract();
+
+                        // Override with the new make/model/reg info
+                        acSpecs.setMake(make);
+                        acSpecs.setModel(model);
+                        acSpecs.setReg(reg);
+
+                        // Does this profile exist already ? If it does remove it
+                        String name = acSpecs.getName();
+                        for(AircraftSpecs as : mACData) {
+                            if(name.equals(as.getName())) {
+                                if(mACData.indexOf(as) < mDefProfiles) {
+                                    Toast.makeText(mContext, "Cannot overwrite a default profile", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                mACData.remove(as);
+                            }
+                        }
+
+                        // Add this new one to the end of the list
+                        mACData.add(acSpecs);
+
+                        // Set the default profile to load to be this one
+                        mPref.setDefaultWNB(acSpecs.getName());
+
+                        // Save W&B profiles to storage, exclude the defaults
+                        saveACSpecs();
 
                         // Set the make/model/reg values of the main window
-                        etvMake.setText(make);
-                        etvModel.setText(model);
-                        etvReg.setText(reg);
+                        populate(acSpecs);
 
                         // All done, close out
+                        Toast.makeText(mContext, acSpecs.getName() + " saved.", Toast.LENGTH_SHORT).show();
                         saveDlg.dismiss();
                     }
                 });
 
-                // If cancel is pressed, then do nothing except close out the dialog
-                bCancel.setOnClickListener(new View.OnClickListener() {
+                // If DELETE is pressed, then remove this profile from our collection
+                // both in memory and saved in storage
+                saveDlg.findViewById(R.id.idDelete).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        // Get the user inputted fields
+                        String make  = etdMake.getText().toString();
+                        String model = etdModel.getText().toString();
+                        String reg   = etdReg.getText().toString();
+
+                        // They must all be non-zero in length
+                        if(make.length() == 0 || model.length() == 0 || reg.length() == 0) {
+                            Toast.makeText(mContext, "Make/Model/Registration needs to be filled out", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Create a new profile from the dialog contents
+                        AircraftSpecs acSpecs = extract();
+
+                        // Override with the new make/model/reg info
+                        acSpecs.setMake(make);
+                        acSpecs.setModel(model);
+                        acSpecs.setReg(reg);
+
+                        // Does this profile exist already ? If it does remove it
+                        String name = acSpecs.getName();
+                        for(AircraftSpecs as : mACData) {
+                            if(name.equals(as.getName())) {
+                                if(mACData.indexOf(as) < mDefProfiles) {
+                                    Toast.makeText(mContext, "Cannot delete a default profile", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                mACData.remove(as);
+                                Toast.makeText(mContext, acSpecs.getName() + " deleted.", Toast.LENGTH_SHORT).show();
+
+                                // Save W&B profiles to storage, exclude the defaults
+                                saveACSpecs();
+
+                                // Set the default to be the first entry in our collection
+                                acSpecs = mACData.getFirst();
+                                mPref.setDefaultWNB(acSpecs.getName());
+                                populate(acSpecs);
+                            }
+                        }
                         saveDlg.dismiss();
                     }
                 });
-
-                // Set the make/model/reg values of the dialog to the ones that are showing
-                // in the main view
-                etdMake.setText(etvMake.getText());
-                etdModel.setText(etvModel.getText());
-                etdReg.setText(etvReg.getText());
 
                 // Dialog is ready, display it
                 saveDlg.show();
             }
         });
 
+    }
+
+    // Save all the created specs to storage
+    private void saveACSpecs() {
+        LinkedList<AircraftSpecs> saveList = new LinkedList<>();
+        for(int idx = mDefProfiles; idx < mACData.size(); idx++){
+            saveList.add(mACData.get(idx));
+        }
+        mPref.putWnbs(WeightAndBalance.putWnbsToStorageFormat(saveList));
     }
 
     // Populate the display area with the values for the specified aircraft

@@ -62,6 +62,7 @@ public class AircraftSpecs {
         addArm(new ArmEntry(description, location, weight));
     }
 
+    public String getName()  { return mMake + " " + mModel + " " + mReg;}
     public String getMake()  { return mMake; }
     public String getModel() { return mModel; }
     public String getReg()   { return mReg; }
@@ -150,6 +151,7 @@ public class AircraftSpecs {
             jsonObject.put("max_a",  Float.toString(mCGMax));
             jsonObject.put("min_a",  Float.toString(mCGMin));
             jsonObject.put("points", mCGEnv);
+
             jsonObject.put("weight", Float.toString(mWeight));
             jsonObject.put("cg",     Float.toString(mCG));
             jsonObject.put("moment", Float.toString(mMoment));

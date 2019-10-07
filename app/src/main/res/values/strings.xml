@@ -597,4 +597,5 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="Reg">Registration :</string>
     <string name="WBSavePrompt">Save Weight &amp; Balance Data</string>
     <string name="WNBGraph">Dot Shows CG Location in W&amp;B Envelope</string>
+    <string name="SaveDelete">Save/Delete</string>
 </resources>

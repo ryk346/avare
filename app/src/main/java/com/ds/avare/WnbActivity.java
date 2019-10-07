@@ -135,6 +135,8 @@ public class WnbActivity extends Activity {
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus) {
                     calcAndSetCG();
+                } else {
+                    ((EditText) v).setSelection(0, ((EditText) v).getText().length());
                 }
             }
         };
@@ -166,6 +168,7 @@ public class WnbActivity extends Activity {
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA23_250).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B).getJSON()));
         mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10).getJSON()));
+        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_GRUMMAN_AA1A).getJSON()));
 
         populate(mACData.getLast());
         calcAndSetCG();
@@ -393,14 +396,16 @@ public class WnbActivity extends Activity {
         TextView vCG = mView.findViewById(R.id.idCG);
         acData.setCG(Helper.parseFloat(vCG.getText().toString()));
 
+        TextView vMoment = mView.findViewById(R.id.idMoment);
+        acData.setMoment(Helper.parseFloat(vMoment.getText().toString()));
+
         for(int idx = 0; idx < idNames.length; idx++) {
             TextView vNames     = mView.findViewById(idNames[idx]);
             TextView vLocations = mView.findViewById(idLocations[idx]);
             TextView vWeights   = mView.findViewById(idWeights[idx]);
-            acData.addArm(new AircraftSpecs().new ArmEntry(
-                    vNames.getText().toString(),
-                    Helper.parseFloat(vLocations.getText().toString()),
-                    Helper.parseFloat(vWeights.getText().toString())));
+            acData.addArm(vNames.getText().toString(),
+                          Helper.parseFloat(vLocations.getText().toString()),
+                          Helper.parseFloat(vWeights.getText().toString()));
         }
         return acData;
     }
@@ -439,6 +444,9 @@ public class WnbActivity extends Activity {
 
         boolean cgOK = true;
 
+        TextView vMoment = mView.findViewById(R.id.idMoment);
+        vMoment.setText(Float.toString(arm));
+
         TextView cgView = mView.findViewById(R.id.idCG);
         cgView.setText(Float.toString(cg));
         if(cg == 0) {
@@ -473,15 +481,18 @@ public class WnbActivity extends Activity {
         if(fCGGrossWT == 0 || fCGMin == 0 || fCGMax == 0 || cg ==0 || WT == 0) {
             statusView.setText("");
             statusView.setBackgroundColor(Color.WHITE);
+            vMoment.setBackgroundColor(Color.WHITE);
         } else {
             if (cgOK) {
                 statusView.setText(R.string.CGOK);
                 statusView.setTextColor(Color.BLACK);
                 statusView.setBackgroundColor(Color.GREEN);
+                vMoment.setBackgroundColor(Color.GREEN);
             } else {
                 statusView.setText(R.string.CGFail);
                 statusView.setTextColor(Color.WHITE);
                 statusView.setBackgroundColor(Color.RED);
+                vMoment.setBackgroundColor(Color.RED);
             }
         }
     }

@@ -56,11 +56,26 @@ public class GraphWNBView extends TextView {
         int idx = 0;
 
         // Fill our our native aircraft specs object from the string text that
-        // was passed in to the control
+        // was passed in to the control. If we dont' have those points, auto generate
+        // a CG Envelope plot
         mACSpecs.fromString(getText().toString());
+        boolean bAuto = mACSpecs.getCGEnv().isEmpty() ? true : false;
+
+        // Auto plot is 4 corners based on the CG min/max and Empty/Gross weights
+        float minArmGross = mACSpecs.getCGMin() * mACSpecs.getGross();
+        float maxArmGross = mACSpecs.getCGMax() * mACSpecs.getGross();
+        float minArmEmpty = mACSpecs.getCGMin() * mACSpecs.getEmpty();
+        float maxArmEmpty = mACSpecs.getCGMax() * mACSpecs.getEmpty();
 
         // Extract individual points for the CG Envelope
-        String[] envPoints = mACSpecs.getCGEnv().split(" ");
+        String[] envPoints = (bAuto ? String.format("%f,%f %f,%f %f,%f %f,%f %f,%f",
+                        minArmEmpty,mACSpecs.getEmpty(),
+                        minArmGross,mACSpecs.getGross(),
+                        maxArmGross,mACSpecs.getGross(),
+                        maxArmEmpty,mACSpecs.getEmpty(),
+                        minArmEmpty,mACSpecs.getEmpty())
+                        : mACSpecs.getCGEnv())
+                        .split(" ");
 
         // Parse each one for the ARM/WT location
         for(String envPoint : envPoints) {
@@ -88,12 +103,12 @@ public class GraphWNBView extends TextView {
         float ratioY = (iHeight - 2 * mMargin) / diffW;     // vertical ratio
 
         // The arm is along the horizontal X axis
-        float diffA = mACSpecs.getCGMax() - mACSpecs.getCGMin();  // ARM spread
+        float diffA = bAuto ? (maxArmGross - minArmEmpty) : (mACSpecs.getCGMax() - mACSpecs.getCGMin());  // ARM spread
         float ratioX = (iWidth - 2 * mMargin) / diffA;      // Horizontal ratio
 
         // Recalc the location of each point based upon the display ratio
         for(idx = 0; idx < envPoints.length * 2; idx += 2) {
-            mCGPoints[idx] = (mCGPoints[idx] - mACSpecs.getCGMin()) * ratioX + mMargin;
+            mCGPoints[idx] = (mCGPoints[idx] - (bAuto ? minArmEmpty : mACSpecs.getCGMin())) * ratioX + mMargin;
             mCGPoints[idx + 1] = iHeight - (mCGPoints[idx + 1] - mACSpecs.getEmpty()) * ratioY - mMargin;
         }
 
@@ -106,7 +121,7 @@ public class GraphWNBView extends TextView {
         canvas.drawPath(mPath, mPaint);
 
         // Draw a circle at the point of our calculated CG
-        float cgX = (mACSpecs.getCG() - mACSpecs.getCGMin()) * ratioX + mMargin;
+        float cgX = (bAuto ? (mACSpecs.getMoment() - minArmEmpty) : (mACSpecs.getCG() - mACSpecs.getCGMin())) * ratioX + mMargin;
         float cgY = iHeight - (mACSpecs.getWeight() - mACSpecs.getEmpty()) * ratioY - mMargin;
         mPaint.setColor(Color.BLACK);
         canvas.drawCircle(cgX, cgY, 5, mPaint);

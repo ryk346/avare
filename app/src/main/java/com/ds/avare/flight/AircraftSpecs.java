@@ -36,6 +36,7 @@ public class AircraftSpecs {
     private String      mCGEnv;     // CG Envelope
     private float       mWeight;    // Calculated takeoff weight
     private float       mCG;        // CG Arm location
+    private float       mMoment;
 
     private LinkedList<ArmEntry> mAEList = new LinkedList<ArmEntry>();    // Arm Entry List
 
@@ -52,9 +53,13 @@ public class AircraftSpecs {
         } catch (Exception ignore) { }
     }
 
-    public void addArm(ArmEntry armEntry) {
+    private void addArm(ArmEntry armEntry) {
         armEntry.mIdx = mAEList.size();
         mAEList.add(armEntry);
+    }
+
+    public void addArm(String description, float location, float weight) {
+        addArm(new ArmEntry(description, location, weight));
     }
 
     public String getMake()  { return mMake; }
@@ -67,6 +72,7 @@ public class AircraftSpecs {
     public String getCGEnv() { return mCGEnv; }
     public float getWeight() { return mWeight; }
     public float getCG()     { return mCG; }
+    public float getMoment() { return mMoment; }
     public LinkedList<ArmEntry> getAEList() { return mAEList; }
 
     public void setMake(String make) { mMake = make; }
@@ -79,6 +85,7 @@ public class AircraftSpecs {
     public void setCGMax(float cgMax) { mCGMax = cgMax; }
     public void setWeight(float weight) {mWeight = weight; }
     public void setCG(float cg) { mCG = cg; }
+    public void setMoment(float moment) { mMoment = moment; }
 
     public class ArmEntry {
         private int    mIdx;
@@ -113,19 +120,20 @@ public class AircraftSpecs {
             mCGMin  = Helper.parseFloat(acData.getString("min_a"));
             mCGMax  = Helper.parseFloat(acData.getString("max_a"));
             mCGEnv  = acData.getString("points");
-            try { mWeight = Helper.parseFloat(acData.getString("weight")); }
-            catch (Exception ignore) { mWeight = 0; }
-            try { mCG     = Helper.parseFloat(acData.getString("cg")); }
-            catch (Exception ignore) { mCG = 0; }
+            try {
+                // This 'try' is required because these items are not part of legacy/default profiles
+                mWeight = Helper.parseFloat(acData.getString("weight"));
+                mCG = Helper.parseFloat(acData.getString("cg"));
+                mMoment = Helper.parseFloat(acData.getString("moment"));
+            } catch ( Exception ignore) { }
 
             for(int idx = 0; idx <= 9; idx++) {
                 try {
-                    addArm(new ArmEntry(
-                            acData.getString("t_" + idx),
-                            Helper.parseFloat(acData.getString("a_" + idx)),
-                            Helper.parseFloat(acData.getString("w_" + idx))));
+                    addArm(acData.getString("t_" + idx),
+                           Helper.parseFloat(acData.getString("a_" + idx)),
+                           Helper.parseFloat(acData.getString("w_" + idx)));
                 } catch (Exception ex) {
-                    addArm(new ArmEntry("", 0, 0));
+                    addArm("", 0, 0);
                 }
             }
         } catch (Exception ignore) {
@@ -144,6 +152,7 @@ public class AircraftSpecs {
             jsonObject.put("points", mCGEnv);
             jsonObject.put("weight", Float.toString(mWeight));
             jsonObject.put("cg",     Float.toString(mCG));
+            jsonObject.put("moment", Float.toString(mMoment));
 
             int idx = 0;
             for(ArmEntry ae : mAEList) {

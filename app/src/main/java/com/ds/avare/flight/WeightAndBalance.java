@@ -33,6 +33,7 @@ public class WeightAndBalance {
     public static final int WNB_PA28R_200B = 2;
     public static final int WNB_PA23_250 = 3;
     public static final int WNB_VANS_RV10 = 4;
+    public static final int WNB_GRUMMAN_AA1A = 5;
 
     public WeightAndBalance(int type) {
         String ex = getDefault();
@@ -50,8 +51,13 @@ public class WeightAndBalance {
                 ex = getExamplePA23250();
                 break;
 
+
             case WNB_VANS_RV10:
                 ex = getExampleRV10();
+                break;
+
+            case WNB_GRUMMAN_AA1A:
+                ex = getExampleAA1A();
                 break;
         }
 
@@ -138,7 +144,7 @@ public class WeightAndBalance {
      */
     public static String getExampleC172R() {
         return "{" +
-                "'name'  :'Sample C172R'," +
+                "'name'  :'Cessna C172R 123AB'," +
                 "'t_0'   :'Empty'," +
                 "'w_0'   :'1666.8'," +
                 "'a_0'   :'39.302',"+
@@ -148,18 +154,18 @@ public class WeightAndBalance {
                 "'t_2'   :'Front passengers'," +
                 "'w_2'   :'275'," +
                 "'a_2'   :'37'," +
-                "'t_3'   :'Back passengers'," +
-                "'w_3'   :'110'," +
-                "'a_3'   :'73'," +
-                "'t_4'   :'Baggage'," +
-                "'w_4'   :'30'," +
-                "'a_4'   :'95'," +
-                "'t_5'   :'Aft Baggage'," +
-                "'w_5'   :'0'," +
-                "'a_5'   :'123'," +
-                "'t_6'   :'Fuel'," +
-                "'w_6'   :'324'," +
-                "'a_6'   :'48'," +
+                "'t_3'   :'Fuel'," +
+                "'w_3'   :'324'," +
+                "'a_3'   :'48'," +
+                "'t_4'   :'Back passengers'," +
+                "'w_4'   :'110'," +
+                "'a_4'   :'73'," +
+                "'t_5'   :'Baggage'," +
+                "'w_5'   :'30'," +
+                "'a_5'   :'95'," +
+                "'t_6'   :'Aft Baggage'," +
+                "'w_6'   :'0'," +
+                "'a_6'   :'123'," +
                 "'t_7'   :''," +
                 "'w_7'   :''," +
                 "'a_7'   :''," +
@@ -179,31 +185,31 @@ public class WeightAndBalance {
 
     private String getExamplePA23250() {
         return "{" +
-                "'name'  :'Sample PA23 250'," +
+                "'name'  :'Piper PA23-250 123AB'," +
                 "'t_0'   :'Empty'," +
                 "'w_0'   :'3178'," +
                 "'a_0'   :'90.71',"+
-                "'t_1'   :'Oil'," +
-                "'w_1'   :'45'," +
-                "'a_1'   :'55'," +
-                "'t_2'   :'Front passengers'," +
-                "'w_2'   :'275'," +
-                "'a_2'   :'89'," +
-                "'t_3'   :'Back passengers'," +
-                "'w_3'   :'110'," +
-                "'a_3'   :'157'," +
-                "'t_4'   :'Nose Baggage'," +
-                "'w_4'   :'30'," +
-                "'a_4'   :'10'," +
-                "'t_5'   :'Aft Baggage'," +
-                "'w_5'   :'10'," +
-                "'a_5'   :'183'," +
-                "'t_6'   :'Fuel'," +
-                "'w_6'   :'840'," +
-                "'a_6'   :'113'," +
-                "'t_7'   :'Rear passengers'," +
-                "'w_7'   :'140'," +
-                "'a_7'   :'126'," +
+                "'t_1'   :'Nose Baggage'," +
+                "'w_1'   :'30'," +
+                "'a_1'   :'10'," +
+                "'t_2'   :'Oil'," +
+                "'w_2'   :'45'," +
+                "'a_2'   :'55'," +
+                "'t_3'   :'Front passengers'," +
+                "'w_3'   :'275'," +
+                "'a_3'   :'89'," +
+                "'t_4'   :'Fuel'," +
+                "'w_4'   :'840'," +
+                "'a_4'   :'113'," +
+                "'t_5'   :'Rear passengers'," +
+                "'w_5'   :'140'," +
+                "'a_5'   :'126'," +
+                "'t_6'   :'Back passengers'," +
+                "'w_6'   :'110'," +
+                "'a_6'   :'157'," +
+                "'t_7'   :'Aft Baggage'," +
+                "'w_7'   :'10'," +
+                "'a_7'   :'183'," +
                 "'t_8'   :''," +
                 "'w_8'   :''," +
                 "'a_8'   :''," +
@@ -220,7 +226,7 @@ public class WeightAndBalance {
 
     private String getExamplePA28R200B() {
         return "{" +
-                "'name'  :'Sample PA28R 200B'," +
+                "'name'  :'Piper PA28R-200B N123AB'," +
                 "'t_0'   :'Empty'," +
                 "'w_0'   :'1577'," +
                 "'a_0'   :'85.5'," +
@@ -230,18 +236,18 @@ public class WeightAndBalance {
                 "'t_2'   :'Front passengers'," +
                 "'w_2'   :'275'," +
                 "'a_2'   :'85.5'," +
-                "'t_3'   :'Back passengers'," +
-                "'w_3'   :'110'," +
-                "'a_3'   :'118.1'," +
-                "'t_4'   :'Baggage'," +
-                "'w_4'   :'100'," +
-                "'a_4'   :'142.8'," +
-                "'t_5'   :''," +
-                "'w_5'   :''," +
-                "'a_5'   :''," +
-                "'t_6'   :'Fuel'," +
-                "'w_6'   :'288'," +
-                "'a_6'   :'95'," +
+                "'t_3'   :'Fuel'," +
+                "'w_3'   :'288'," +
+                "'a_3'   :'95'," +
+                "'t_4'   :'Back passengers'," +
+                "'w_4'   :'110'," +
+                "'a_4'   :'118.1'," +
+                "'t_5'   :'Baggage'," +
+                "'w_5'   :'100'," +
+                "'a_5'   :'142.8'," +
+                "'t_6'   :''," +
+                "'w_6'   :''," +
+                "'a_6'   :''," +
                 "'t_7'   :''," +
                 "'w_7'   :''," +
                 "'a_7'   :''," +
@@ -261,11 +267,11 @@ public class WeightAndBalance {
 
     public static String getExampleRV10() {
         return "{" +
-                "'name'  :'Vans RV10 N820TX'," +
-                "'t_0'   :'Right'," +
+                "'name'  :'Vans RV10 N123AB'," +
+                "'t_0'   :'Right Main'," +
                 "'w_0'   :'579'," +
                 "'a_0'   :'124.4',"+
-                "'t_1'   :'Left'," +
+                "'t_1'   :'Left Main'," +
                 "'w_1'   :'581'," +
                 "'a_1'   :'124.4'," +
                 "'t_2'   :'Nose'," +
@@ -296,17 +302,58 @@ public class WeightAndBalance {
                 "'min_w' :'1502'," +
                 "'max_a' :'116.24'," +
                 "'min_a' :'107.84'," +
-                "'points':'116.24,1509 107.84206,1509 107.84206,1913 108.14926,2700 116.24,2700 116.24,1509'" +
+                "'points':''" +
+                "}";
+    }
+
+    public static String getExampleAA1A() {
+        return "{" +
+                "'name'  :'Grumman AA1A N123AB'," +
+                "'t_0'   :'Empty Weight'," +
+                "'w_0'   :'1007'," +
+                "'a_0'   :'73.9741',"+
+                "'t_1'   :'Oil'," +
+                "'w_1'   :'11'," +
+                "'a_1'   :'39'," +
+                "'t_2'   :'Fuel'," +
+                "'w_2'   :'132'," +
+                "'a_2'   :'84.5'," +
+                "'t_3'   :'Pilot/Pax'," +
+                "'w_3'   :'340'," +
+                "'a_3'   :'92.5'," +
+                "'t_4'   :'Baggage'," +
+                "'w_4'   :'10'," +
+                "'a_4'   :'120'," +
+                "'t_5'   :''," +
+                "'w_5'   :'0'," +
+                "'a_5'   :'151.26'," +
+                "'t_6'   :''," +
+                "'w_6'   :''," +
+                "'a_6'   :''," +
+                "'t_7'   :''," +
+                "'w_7'   :''," +
+                "'a_7'   :''," +
+                "'t_8'   :''," +
+                "'w_8'   :''," +
+                "'a_8'   :''," +
+                "'t_9'   :''," +
+                "'w_9'   :''," +
+                "'a_9'   :''," +
+                "'max_w' :'1500'," +
+                "'min_w' :'1007'," +
+                "'max_a' :'87.38'," +
+                "'min_a' :'75.27'," +
+                "'points':''" +
                 "}";
     }
 
     public static String getDefault() {
         return "{" +
                 "'name'  :'Default Aircraft N123AB'," +
-                "'t_0'   :'Right'," +
+                "'t_0'   :'Right Main'," +
                 "'w_0'   :'0'," +
                 "'a_0'   :'0',"+
-                "'t_1'   :'Left'," +
+                "'t_1'   :'Left Main'," +
                 "'w_1'   :'0'," +
                 "'a_1'   :'0'," +
                 "'t_2'   :'Nose/Tail'," +
@@ -337,7 +384,7 @@ public class WeightAndBalance {
                 "'min_w' :'0'," +
                 "'max_a' :'0'," +
                 "'min_a' :'0'," +
-                "'points':'47.3,1650 35,1650 35,1950 40,2450 47.3,2450 47.3,1650'" +
+                "'points':''" +
                 "}";
     }
 }

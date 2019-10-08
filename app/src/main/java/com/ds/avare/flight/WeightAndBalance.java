@@ -20,11 +20,11 @@ import java.util.LinkedList;
 
 /**
  * All lists get stored and get retrieved in JSON format
- * @author zkhan
+ * @author zkhan, rwalker
  *
  */
 public class WeightAndBalance {
-    JSONObject mWnb;
+    private JSONObject mWnb;
 
     public static final int WNB_DEFAULT = 0;
     public static final int WNB_C172R = 1;
@@ -69,54 +69,17 @@ public class WeightAndBalance {
     }
 
     /**
-     * From JSON
-     * @param json
-     */
-    public WeightAndBalance(JSONObject json) {
-        mWnb = json;
-    }
-
-    /**
      * Get in JSON format
-     * @return
+     * @return the JSON object format for this item
      */
     public JSONObject getJSON() {
         return mWnb;
     }
     
-    /**
-     * 
-     * @return
-     */
-    public String getName99() {
-        try {
-            return mWnb.getString("name");
-        } catch (JSONException e) {
-        }
-        return "";
-    }
-
-    /**
-     * Put a list of WNBs in JSON array
-     * @param wnbs
-     * @return
-     */
-    public static String putWnbsToStorageFormat_xxx(LinkedList<WeightAndBalance> wnbs) {
-        
-        JSONArray jsonArr = new JSONArray();
-        for(WeightAndBalance w : wnbs) {
-            
-            JSONObject o = w.getJSON();
-            jsonArr.put(o);
-        }
-        
-        return jsonArr.toString();
-    }
-
-    public static String putWnbsToStorageFormat(LinkedList<AircraftSpecs> wnbs) {
+    public static String putWnbsToStorageFormat(LinkedList<AircraftSpecsWB> wnbs) {
 
         JSONArray jsonArr = new JSONArray();
-        for(AircraftSpecs w : wnbs) {
+        for(AircraftSpecsWB w : wnbs) {
 
             JSONObject o = w.toJSon();
             jsonArr.put(o);
@@ -124,34 +87,9 @@ public class WeightAndBalance {
         return jsonArr.toString();
     }
 
-    /**
-     * Gets an array of WNBs from storage JSON
-     * @return
-     */
-    public static LinkedList<WeightAndBalance> getWnbsFromStorageFormat_xxx(String json) {
+    public static LinkedList<AircraftSpecsWB> getWnbsFromStorageFormat(String json) {
         JSONArray jsonArr;
-        LinkedList<WeightAndBalance> ret = new LinkedList<WeightAndBalance>();
-        try {
-            jsonArr = new JSONArray(json);
-        } catch (JSONException e) {
-            return ret;
-        }
-        
-        for(int i = 0; i < jsonArr.length(); i++) {
-            try {
-                JSONObject o = jsonArr.getJSONObject(i);
-                ret.add(new WeightAndBalance(o));
-            } catch (JSONException e) {
-                continue;
-            }
-        }
-        
-        return ret;
-    }
-
-    public static LinkedList<AircraftSpecs> getWnbsFromStorageFormat(String json) {
-        JSONArray jsonArr;
-        LinkedList<AircraftSpecs> ret = new LinkedList<>();
+        LinkedList<AircraftSpecsWB> ret = new LinkedList<>();
         try {
             jsonArr = new JSONArray(json);
         } catch (JSONException e) {
@@ -161,9 +99,8 @@ public class WeightAndBalance {
         for(int i = 0; i < jsonArr.length(); i++) {
             try {
                 JSONObject o = jsonArr.getJSONObject(i);
-                ret.add(new AircraftSpecs(o));
-            } catch (JSONException e) {
-                continue;
+                ret.add(new AircraftSpecsWB(o));
+            } catch (JSONException ignore) {
             }
         }
 
@@ -172,9 +109,9 @@ public class WeightAndBalance {
 
     /**
      * 172R example
-     * @return
+     * @return String that is a C172R
      */
-    public static String getExampleC172R() {
+    private static String getExampleC172R() {
         return "{" +
                 "'name'  :'Cessna C172R 123AB'," +
                 "'t_0'   :'Empty'," +
@@ -297,7 +234,7 @@ public class WeightAndBalance {
                 "}";
     }
 
-    public static String getExampleRV10() {
+    private static String getExampleRV10() {
         return "{" +
                 "'name'  :'Vans RV10 N123AB'," +
                 "'t_0'   :'Right Main'," +
@@ -338,7 +275,7 @@ public class WeightAndBalance {
                 "}";
     }
 
-    public static String getExampleRV7a() {
+    private static String getExampleRV7a() {
         return "{" +
                 "'name'  :'Vans RV7a N123AB'," +
                 "'t_0'   :'Right Main'," +
@@ -379,7 +316,7 @@ public class WeightAndBalance {
                 "}";
     }
 
-    public static String getExampleAA1A() {
+    private static String getExampleAA1A() {
         return "{" +
                 "'name'  :'Grumman AA1A N123AB'," +
                 "'t_0'   :'Empty Weight'," +

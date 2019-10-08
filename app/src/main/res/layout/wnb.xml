@@ -289,7 +289,7 @@ Redistribution and use in source and binary forms, with or without modification,
 	</TableLayout>
 
     <TableLayout
-        android:id="@+id/idTitles"
+        android:id="@+id/idColumnTitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/idCGnWeight"
@@ -334,7 +334,7 @@ Redistribution and use in source and binary forms, with or without modification,
 		android:id="@+id/idScrollWindow"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/idTitles"
+		android:layout_below="@id/idColumnTitles"
 		android:fillViewport="false">
 
 

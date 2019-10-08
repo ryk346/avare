@@ -14,18 +14,17 @@ package com.ds.avare.flight;
 
 import com.ds.avare.utils.Helper;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.LinkedList;
 
 /**
- * Object to encapsulate the properties of an aircraft
+ * Object to encapsulate the properties of an aircraft WB info
  * @author Ron Walker
  *
  */
 
-public class AircraftSpecs {
+public class AircraftSpecsWB {
     private String      mMake;      // Make
     private String      mModel;     // Model
     private String      mReg;       // Registration
@@ -34,16 +33,16 @@ public class AircraftSpecs {
     private float       mCGMin;     // Min CG location
     private float       mCGMax;     // Max CG location
     private String      mCGEnv;     // CG Envelope
+
     private float       mWeight;    // Calculated takeoff weight
     private float       mCG;        // CG Arm location
-    private float       mMoment;
+    private float       mMoment;    // Calculated CG moment value
 
-    private LinkedList<ArmEntry> mAEList = new LinkedList<ArmEntry>();    // Arm Entry List
+    private LinkedList<ArmEntry> mAEList = new LinkedList<>();    // Arm Entry List
 
-    public AircraftSpecs() {
-    }
+    public AircraftSpecsWB() { }
 
-    public AircraftSpecs(JSONObject acData) {
+    public AircraftSpecsWB(JSONObject acData) {
         fromJSon(acData);
     }
 
@@ -99,7 +98,7 @@ public class AircraftSpecs {
         public float location() { return mLocation; }
         public float weight() { return mWeight; }
 
-        public ArmEntry(String description, float location, float weight) {
+        private ArmEntry(String description, float location, float weight) {
             mDescription = description;
             mLocation = location;
             mWeight = weight;
@@ -133,7 +132,7 @@ public class AircraftSpecs {
                     addArm(acData.getString("t_" + idx),
                            Helper.parseFloat(acData.getString("a_" + idx)),
                            Helper.parseFloat(acData.getString("w_" + idx)));
-                } catch (Exception ex) {
+                } catch (Exception ignore) {
                     addArm("", 0, 0);
                 }
             }

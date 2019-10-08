@@ -1249,13 +1249,11 @@ public class Preferences {
         mPref.edit().putString(mContext.getString(R.string.Wnb), name).apply();
     }
 
-    public void setDefaultWNB(String name) {
-        mPref.edit().putString("DefaultWNB", name).apply();
+    public void setRecentWNB(String name) {
+        mPref.edit().putString("RecentWNB", name).apply();
     }
 
-    public String getDefaultWNB() {
-        return mPref.getString("DefaultWNB", "");
-    }
+    public String getRecentWNB() { return mPref.getString("RecentWNB", ""); }
 
     public boolean isDefaultAFDImage() {
         return mPref.getBoolean(mContext.getString(R.string.DefaultAFD), false);

@@ -27,14 +27,13 @@ import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ds.avare.flight.AircraftSpecs;
+import com.ds.avare.flight.AircraftSpecsWB;
 import com.ds.avare.flight.WeightAndBalance;
 import com.ds.avare.gps.GpsInterface;
 import com.ds.avare.storage.Preferences;
@@ -78,7 +77,7 @@ public class WnbActivity extends Activity {
 
     private Context mContext;
 
-    private LinkedList<AircraftSpecs> mACData = new LinkedList<>();
+    private LinkedList<AircraftSpecsWB> mACData = new LinkedList<>();
 
     private Preferences mPref;
 
@@ -163,13 +162,13 @@ public class WnbActivity extends Activity {
         mView.findViewById(R.id.idEmpty).setOnFocusChangeListener(doRecalc);
 
         // Fetch all of the WnB default info that we know about
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_DEFAULT).getJSON()));
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_C172R).getJSON()));
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA23_250).getJSON()));
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B).getJSON()));
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV7A).getJSON()));
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10).getJSON()));
-        mACData.add(new AircraftSpecs(new WeightAndBalance(WeightAndBalance.WNB_GRUMMAN_AA1A).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_DEFAULT).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_C172R).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_PA23_250).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV7A).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10).getJSON()));
+        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_GRUMMAN_AA1A).getJSON()));
 
         // Set how many default profiles we have
         mDefProfiles = mACData.size();
@@ -177,11 +176,11 @@ public class WnbActivity extends Activity {
         // Add in all of the saved profiles
         mACData.addAll(WeightAndBalance.getWnbsFromStorageFormat(mPref.getWnbs()));
 
-        // Populate the display with the default profile
+        // Populate the display with the WNB_DEFAULT profile
         populate(mACData.getFirst());
 
-        String defProf = mPref.getDefaultWNB(); // Get the most recent profile used
-        for(AircraftSpecs acSpecs : mACData) {  // Search for it in our collection
+        String defProf = mPref.getRecentWNB(); // Get the most recent profile used
+        for(AircraftSpecsWB acSpecs : mACData) {  // Search for it in our collection
             if(defProf.equals(acSpecs.getName())) {
                 populate(acSpecs);              // When found, populate display with that data
                 break;
@@ -218,7 +217,7 @@ public class WnbActivity extends Activity {
             public void onClick(View v) {
                 int idx = 0;
                 final String[] acProfiles = new String[mACData.size()];
-                for(AircraftSpecs as : mACData){
+                for(AircraftSpecsWB as : mACData){
                     acProfiles[idx++] = as.getName();
                 }
 
@@ -228,19 +227,13 @@ public class WnbActivity extends Activity {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mPref.setDefaultWNB(mACData.get(which).getName());
-                                populate(mACData.get(which));
+                                AircraftSpecsWB acSpecs = mACData.get(which);
+                                mPref.setRecentWNB(acSpecs.getName());
+                                populate(acSpecs);
                                 calcAndSetCG();
                                 dialog.dismiss();
                             }
                         });
-
-                // Cancel, nothing to do here, let the dialog self-destruct
-                dlgBldr.setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                });
 
                 // Create and show the dialog now
                 AlertDialog dialog = dlgBldr.create();
@@ -254,11 +247,52 @@ public class WnbActivity extends Activity {
         mView.findViewById(R.id.idGraph).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog graphDlg = new Dialog(mContext);
+                final Dialog graphDlg = new Dialog(mContext);
                 graphDlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 graphDlg.setContentView(R.layout.graph_wnb);
-                ((TextView)graphDlg.findViewById(R.id.idGraph)).
-                        setText(extract().toJSon().toString());
+                setDialogFieldText(graphDlg, R.id.idGraph, extract().toJSon().toString());
+
+                // This button brings up the custom weight/CG map
+                graphDlg.findViewById(R.id.idSetCustomEnv).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Dialog dlgSetCustomEnv = new Dialog(mContext);
+                        dlgSetCustomEnv.setTitle(R.string.EnvelopePoints);
+                        dlgSetCustomEnv.setContentView(R.layout.custom_envelope);
+
+                        dlgSetCustomEnv.findViewById(R.id.idDone).setOnClickListener(new View.OnClickListener() {
+                             @Override
+                             public void onClick(View v) {
+                                 StringBuilder cgEnv = new StringBuilder();
+                                 for(int idx = 0; idx < idWeights.length; idx++) {
+                                     EditText vWeight = dlgSetCustomEnv.findViewById(idWeights[idx]);
+                                     EditText vLocation = dlgSetCustomEnv.findViewById(idLocations[idx]);
+                                     if(vWeight.getText().length() > 0 && vLocation.getText().length() > 0) {
+                                         cgEnv.append(" " + vLocation.getText() + "," + vWeight.getText());
+                                     }
+                                 }
+                                 setViewFieldText(mView, R.id.idCGEnv, cgEnv.toString().trim());
+                                 setDialogFieldText(graphDlg, R.id.idGraph, extract().toJSon().toString());
+                                 dlgSetCustomEnv.dismiss();
+                             }
+                        });
+
+                        int idx = 0;
+                        TextView vCGEnv = mView.findViewById(R.id.idCGEnv);
+                        String cgEnv = vCGEnv.getText().toString();
+                        if(!cgEnv.isEmpty()) {
+                            String[] armStations = cgEnv.split(" ");
+                            for (String armStation : armStations) {
+                                String[] as = armStation.split(",");
+                                setDialogFieldText(dlgSetCustomEnv, idLocations[idx], as[0]);
+                                setDialogFieldText(dlgSetCustomEnv, idWeights[idx], as[1]);
+                                idx++;
+                            }
+                        }
+                        dlgSetCustomEnv.show();
+                    }
+                });
+
                 graphDlg.show();
             }
         });
@@ -278,9 +312,10 @@ public class WnbActivity extends Activity {
                 final EditText etdModel = saveDlg.findViewById(R.id.idModel);
                 final EditText etdReg   = saveDlg.findViewById(R.id.idReg);
 
-                etdMake.setText (((TextView) mView.findViewById(R.id.idMake)). getText());
-                etdModel.setText(((TextView) mView.findViewById(R.id.idModel)).getText());
-                etdReg.setText  (((TextView) mView.findViewById(R.id.idReg))  .getText());
+                // Seed the text in the save/delete dialog from the main view
+                etdMake.setText (getViewFieldText(mView, R.id.idMake));
+                etdModel.setText(getViewFieldText(mView, R.id.idModel));
+                etdReg.setText  (getViewFieldText(mView, R.id.idReg));
 
                 // Set what to do when the SAVE button is clicked.
                 saveDlg.findViewById(R.id.idSave).setOnClickListener(new View.OnClickListener() {
@@ -293,12 +328,12 @@ public class WnbActivity extends Activity {
 
                         // They must all be non-zero in length
                         if(make.length() == 0 || model.length() == 0 || reg.length() == 0) {
-                            Toast.makeText(mContext, "Make/Model/Registration needs to be filled out", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, getString(R.string.errMakeModelReg), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         // Create a new profile from the dialog contents
-                        AircraftSpecs acSpecs = extract();
+                        AircraftSpecsWB acSpecs = extract();
 
                         // Override with the new make/model/reg info
                         acSpecs.setMake(make);
@@ -307,10 +342,10 @@ public class WnbActivity extends Activity {
 
                         // Does this profile exist already ? If it does remove it
                         String name = acSpecs.getName();
-                        for(AircraftSpecs as : mACData) {
+                        for(AircraftSpecsWB as : mACData) {
                             if(name.equals(as.getName())) {
                                 if(mACData.indexOf(as) < mDefProfiles) {
-                                    Toast.makeText(mContext, "Cannot overwrite a default profile", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, getString(R.string.errNoDefaultOverwrite), Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 mACData.remove(as);
@@ -321,16 +356,16 @@ public class WnbActivity extends Activity {
                         mACData.add(acSpecs);
 
                         // Set the default profile to load to be this one
-                        mPref.setDefaultWNB(acSpecs.getName());
+                        mPref.setRecentWNB(acSpecs.getName());
 
                         // Save W&B profiles to storage, exclude the defaults
-                        saveACSpecs();
+                        saveACData();
 
                         // Set the make/model/reg values of the main window
                         populate(acSpecs);
 
                         // All done, close out
-                        Toast.makeText(mContext, acSpecs.getName() + " saved.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, acSpecs.getName() + getString(R.string.Saved), Toast.LENGTH_SHORT).show();
                         saveDlg.dismiss();
                     }
                 });
@@ -347,12 +382,12 @@ public class WnbActivity extends Activity {
 
                         // They must all be non-zero in length
                         if(make.length() == 0 || model.length() == 0 || reg.length() == 0) {
-                            Toast.makeText(mContext, "Make/Model/Registration needs to be filled out", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, getString(R.string.errMakeModelReg), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         // Create a new profile from the dialog contents
-                        AircraftSpecs acSpecs = extract();
+                        AircraftSpecsWB acSpecs = extract();
 
                         // Override with the new make/model/reg info
                         acSpecs.setMake(make);
@@ -361,21 +396,21 @@ public class WnbActivity extends Activity {
 
                         // Does this profile exist already ? If it does remove it
                         String name = acSpecs.getName();
-                        for(AircraftSpecs as : mACData) {
+                        for(AircraftSpecsWB as : mACData) {
                             if(name.equals(as.getName())) {
                                 if(mACData.indexOf(as) < mDefProfiles) {
-                                    Toast.makeText(mContext, "Cannot delete a default profile", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, getString(R.string.errNoDeleteDefault), Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 mACData.remove(as);
-                                Toast.makeText(mContext, acSpecs.getName() + " deleted.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, acSpecs.getName() + getString(R.string.Deleted), Toast.LENGTH_SHORT).show();
 
                                 // Save W&B profiles to storage, exclude the defaults
-                                saveACSpecs();
+                                saveACData();
 
                                 // Set the default to be the first entry in our collection
                                 acSpecs = mACData.getFirst();
-                                mPref.setDefaultWNB(acSpecs.getName());
+                                mPref.setRecentWNB(acSpecs.getName());
                                 populate(acSpecs);
                             }
                         }
@@ -391,8 +426,8 @@ public class WnbActivity extends Activity {
     }
 
     // Save all the created specs to storage
-    private void saveACSpecs() {
-        LinkedList<AircraftSpecs> saveList = new LinkedList<>();
+    private void saveACData() {
+        LinkedList<AircraftSpecsWB> saveList = new LinkedList<>();
         for(int idx = mDefProfiles; idx < mACData.size(); idx++){
             saveList.add(mACData.get(idx));
         }
@@ -400,182 +435,174 @@ public class WnbActivity extends Activity {
     }
 
     // Populate the display area with the values for the specified aircraft
-    private void populate(AircraftSpecs acData) {
+    //
+    private void populate(AircraftSpecsWB acData) {
 
-        TextView make = mView.findViewById(R.id.idMake);
-        make.setText(acData.getMake());
+        setViewFieldText(mView, R.id.idMake,  acData.getMake());
+        setViewFieldText(mView, R.id.idModel, acData.getModel());
+        setViewFieldText(mView, R.id.idReg,   acData.getReg());
+        setViewFieldFloat(mView, R.id.idCGMin, acData.getCGMin());
+        setViewFieldFloat(mView, R.id.idCGMax, acData.getCGMax());
+        setViewFieldFloat(mView, R.id.idGross, acData.getGross());
+        setViewFieldFloat(mView, R.id.idEmpty, acData.getEmpty());
+        setViewFieldText(mView, R.id.idCGEnv, acData.getCGEnv());
 
-        TextView model = mView.findViewById(R.id.idModel);
-        model.setText(acData.getModel());
+        for(AircraftSpecsWB.ArmEntry ae : acData.getAEList()) {
+            TextView location = setViewFieldText(mView, idLocations[ae.idx()], "");
+            TextView weight   = setViewFieldText(mView, idWeights[ae.idx()], "");
 
-        TextView reg = mView.findViewById(R.id.idReg);
-        reg.setText(acData.getReg());
-
-        TextView cgMin = mView.findViewById(R.id.idCGMin);
-        cgMin.setText(Float.toString(acData.getCGMin()));
-
-        TextView cgMax = mView.findViewById(R.id.idCGMax);
-        cgMax.setText(Float.toString(acData.getCGMax()));
-
-        TextView grossWT = mView.findViewById(R.id.idGross);
-        grossWT.setText(Float.toString(acData.getGross()));
-
-        TextView vEmpty = mView.findViewById(R.id.idEmpty);
-        vEmpty.setText(Float.toString(acData.getEmpty()));
-
-        TextView cgEnv = mView.findViewById(R.id.idCGEnv);
-        cgEnv.setText(acData.getCGEnv());
-
-        for(AircraftSpecs.ArmEntry ae : acData.getAEList()) {
-            TextView name     = mView.findViewById(idNames[ae.idx()]);
-            TextView location = mView.findViewById(idLocations[ae.idx()]);
-            TextView weight   = mView.findViewById(idWeights[ae.idx()]);
-
-            name.setText(ae.description());
+            setViewFieldText(mView, idNames[ae.idx()], ae.description());
             if(!ae.description().isEmpty()) {
                 location.setText(Float.toString(ae.location()));
                 weight.setText(Float.toString(ae.weight()));
-            } else {
-                location.setText("");
-                weight.setText("");
             }
         }
     }
 
     // Extract all of the dialog values and build an explicit object
-    private AircraftSpecs extract() {
+    //
+    private AircraftSpecsWB extract() {
 
-        AircraftSpecs acData = new AircraftSpecs();
+        // Allocate a new object to hold the data
+        AircraftSpecsWB acData = new AircraftSpecsWB();
 
-        TextView vMake = mView.findViewById(R.id.idMake);
-        acData.setMake(vMake.getText().toString());
+        // Fetch the primary info
+        acData.setMake(getViewFieldText(mView, R.id.idMake));
+        acData.setModel(getViewFieldText(mView, R.id.idModel));
+        acData.setReg(getViewFieldText(mView, R.id.idReg));
+        acData.setCGMin(getViewFieldFloat(mView, R.id.idCGMin));
+        acData.setCGMax(getViewFieldFloat(mView, R.id.idCGMax));
+        acData.setEmpty(getViewFieldFloat(mView, R.id.idEmpty));
+        acData.setGross(getViewFieldFloat(mView, R.id.idGross));
+        acData.setCGEnv(getViewFieldText(mView, R.id.idCGEnv));
 
-        TextView vModel = mView.findViewById(R.id.idModel);
-        acData.setModel(vModel.getText().toString());
-
-        TextView vReg = mView.findViewById(R.id.idReg);
-        acData.setReg(vReg.getText().toString());
-
-        TextView vCGMin = mView.findViewById(R.id.idCGMin);
-        acData.setCGMin(Helper.parseFloat(vCGMin.getText().toString()));
-
-        TextView vCGMax = mView.findViewById(R.id.idCGMax);
-        acData.setCGMax(Helper.parseFloat(vCGMax.getText().toString()));
-
-        TextView vEmpty = mView.findViewById(R.id.idEmpty);
-        acData.setEmpty(Helper.parseFloat(vEmpty.getText().toString()));
-
-        TextView vGross = mView.findViewById(R.id.idGross);
-        acData.setGross(Helper.parseFloat(vGross.getText().toString()));
-
-        TextView vCGEnv = mView.findViewById(R.id.idCGEnv);
-        acData.setCGEnv(vCGEnv.getText().toString());
-
-        TextView vWeight = mView.findViewById(R.id.idWeight);
-        acData.setWeight(Helper.parseFloat(vWeight.getText().toString()));
-
-        TextView vCG = mView.findViewById(R.id.idCG);
-        acData.setCG(Helper.parseFloat(vCG.getText().toString()));
-
-        TextView vMoment = mView.findViewById(R.id.idMoment);
-        acData.setMoment(Helper.parseFloat(vMoment.getText().toString()));
-
+        // Fetch each of the arm data points
         for(int idx = 0; idx < idNames.length; idx++) {
-            TextView vNames     = mView.findViewById(idNames[idx]);
-            TextView vLocations = mView.findViewById(idLocations[idx]);
-            TextView vWeights   = mView.findViewById(idWeights[idx]);
-            acData.addArm(vNames.getText().toString(),
-                          Helper.parseFloat(vLocations.getText().toString()),
-                          Helper.parseFloat(vWeights.getText().toString()));
+            acData.addArm(getViewFieldText(mView, idNames[idx]),
+                    getViewFieldFloat(mView, idLocations[idx]),
+                    getViewFieldFloat(mView, idWeights[idx]));
         }
+
+        // These are calculated values. This is required because it is needed by the auto
+        // graphing routines
+        acData.setWeight(getViewFieldFloat(mView, R.id.idWeight));
+        acData.setCG(getViewFieldFloat(mView, R.id.idCG));
+        acData.setMoment(getViewFieldFloat(mView, R.id.idMoment));
+
         return acData;
     }
 
     // Read all of the edit controls to calculate the CG and gross weight.
     // Populate the display fields with that value
+    //
     private void calcAndSetCG() {
 
         // Calculate the overall arm and gross weight
-        float arm = 0;
-        float WT  = 0;
+        float calcMoment = 0;
+        float calcWT  = 0;
 
+        // Add up all the weights we have in the station list
+        // Calculate the arms at the stations, and add all those as well
         for(int idx = 0; idx < idNames.length; idx++) {
-            TextView locationView = mView.findViewById(idLocations[idx]);
-            TextView weightView = mView.findViewById(idWeights[idx]);
+            float weight   = getViewFieldFloat(mView, idWeights[idx]);
+            float location = getViewFieldFloat(mView, idLocations[idx]);
 
-            if(weightView.getText().length() > 0 && locationView.getText().length() > 0) {
-                float weight = Float.parseFloat(weightView.getText().toString());
-                float location = Float.parseFloat(locationView.getText().toString());
-
-                arm += weight * location;
-                WT += weight;
-            }
+            calcMoment += weight * location;
+            calcWT += weight;
         }
 
+        // The forwardmost allowable CG location
         TextView cgMin = mView.findViewById(R.id.idCGMin);
-        float fCGMin = Float.parseFloat(cgMin.getText().toString());
+        float fCGMin = Helper.parseFloat(cgMin.getText().toString());
 
+        // The rearwardmost allowable CG location
         TextView cgMax = mView.findViewById(R.id.idCGMax);
-        float fCGMax = Float.parseFloat(cgMax.getText().toString());
+        float fCGMax = Helper.parseFloat(cgMax.getText().toString());
 
+        // Max/Gross weight allowed
         TextView grossWT = mView.findViewById(R.id.idGross);
-        float fCGGrossWT = Float.parseFloat(grossWT.getText().toString());
+        float fGross = Helper.parseFloat(grossWT.getText().toString());
 
-        float cg = WT > 0 ? arm / WT : 0;
+        // Calculate the CG for this condition.
+        float calcCG = calcWT > 0 ? calcMoment / calcWT : 0;
 
-        boolean cgOK = true;
+        // Set the calculated moment of the cg
+        TextView vMoment = setViewFieldFloat(mView, R.id.idMoment, calcMoment);
 
-        TextView vMoment = mView.findViewById(R.id.idMoment);
-        vMoment.setText(Float.toString(arm));
+        // Set the CG and adjust the color
+        TextView vCG = setViewFieldFloat(mView, R.id.idCG, calcCG);
+        boolean cgOK = setStatusColor(vCG, calcCG <= fCGMax && calcCG >= fCGMin);
 
-        TextView cgView = mView.findViewById(R.id.idCG);
-        cgView.setText(Float.toString(cg));
-        if(cg == 0) {
-            cgView.setBackgroundColor(Color.WHITE);
+        // Set the calculated weight and adjust the color
+        TextView vWeight = setViewFieldFloat(mView, R.id.idWeight, calcWT);
+        cgOK = setStatusColor(vWeight, (calcWT <= fGross && calcWT > 0) && cgOK);
+
+        // Overall good/bad status setting
+        TextView vStatus = mView.findViewById(R.id.idStatus);
+        if(fGross == 0 || fCGMin == 0 || fCGMax == 0 || calcCG == 0 || calcWT == 0) {
+            setUnknown(vStatus);
+            setUnknown(vMoment);
+            setUnknown(vWeight);
+            setUnknown(vCG);
         } else {
-            if (cg <= fCGMax && cg >= fCGMin) {
-                cgView.setTextColor(Color.BLACK);
-                cgView.setBackgroundColor(Color.GREEN);
-            } else {
-                cgView.setTextColor(Color.WHITE);
-                cgView.setBackgroundColor(Color.RED);
-                cgOK = false;
-            }
+            setStatusColor(vStatus, cgOK);
+            setStatusColor(vMoment, cgOK);
+            vStatus.setText(cgOK ? R.string.CGOK : R.string.CGFail);
         }
+    }
 
-        TextView weightView = mView.findViewById(R.id.idWeight);
-        weightView.setText(Float.toString(WT));
-        if(WT == 0) {
-            weightView.setBackgroundColor(Color.WHITE);
+    // A little helper method to set good/bad colors of a specific
+    // view
+    private boolean setStatusColor(TextView v, boolean bGoodBad) {
+        if(bGoodBad) {
+            v.setTextColor(Color.BLACK);
+            v.setBackgroundColor(Color.GREEN);
         } else {
-            if (WT <= fCGGrossWT) {
-                weightView.setTextColor(Color.BLACK);
-                weightView.setBackgroundColor(Color.GREEN);
-            } else {
-                weightView.setTextColor(Color.WHITE);
-                weightView.setBackgroundColor(Color.RED);
-                cgOK = false;
-            }
+            v.setTextColor(Color.WHITE);
+            v.setBackgroundColor(Color.RED);
         }
+        return bGoodBad;
+    }
 
-        TextView statusView = mView.findViewById(R.id.idStatus);
-        if(fCGGrossWT == 0 || fCGMin == 0 || fCGMax == 0 || cg ==0 || WT == 0) {
-            statusView.setText("");
-            statusView.setBackgroundColor(Color.WHITE);
-            vMoment.setBackgroundColor(Color.WHITE);
-        } else {
-            if (cgOK) {
-                statusView.setText(R.string.CGOK);
-                statusView.setTextColor(Color.BLACK);
-                statusView.setBackgroundColor(Color.GREEN);
-                vMoment.setBackgroundColor(Color.GREEN);
-            } else {
-                statusView.setText(R.string.CGFail);
-                statusView.setTextColor(Color.WHITE);
-                statusView.setBackgroundColor(Color.RED);
-                vMoment.setBackgroundColor(Color.RED);
-            }
-        }
+    // Set a control to "unknown" status
+    //
+    private void setUnknown(TextView v) {
+        v.setText("");
+        v.setBackgroundColor(Color.WHITE);
+    }
+
+    // Find a field, then set its value with the float indicated
+    //
+    private TextView setViewFieldFloat(View v, int id, float f) {
+        TextView tv = v.findViewById(id);
+        tv.setText(Float.toString(f));
+        return tv;
+    }
+
+    private float getViewFieldFloat(View v, int id) {
+        TextView tv = v.findViewById(id);
+        return Helper.parseFloat(tv.getText().toString());
+    }
+
+    private String getViewFieldText(View v, int id) {
+        TextView tv = v.findViewById(id);
+        return tv.getText().toString();
+    }
+
+    // Find a field in the view, then set its value with the String indicated
+    //
+    private TextView setViewFieldText(View v, int id, String s) {
+        TextView tv = v.findViewById(id);
+        tv.setText(s);
+        return tv;
+    }
+
+    // Find a field in the dialog, then set its value with the String indicated
+    //
+    private TextView setDialogFieldText(Dialog d, int id, String s) {
+        TextView tv = d.findViewById(id);
+        tv.setText(s);
+        return tv;
     }
 
     // Defines callbacks for service binding, passed to bindService()

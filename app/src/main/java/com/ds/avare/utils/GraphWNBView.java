@@ -16,14 +16,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Bundle;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ds.avare.R;
-import com.ds.avare.flight.AircraftSpecs;
+import com.ds.avare.flight.AircraftSpecsWB;
 
-import java.util.LinkedList;
 import java.util.Locale;
 
 /**
@@ -32,7 +30,7 @@ import java.util.Locale;
  *
  */
 public class GraphWNBView extends TextView {
-    AircraftSpecs mACSpecs = new AircraftSpecs();
+    AircraftSpecsWB mACSpecs = new AircraftSpecsWB();
     Paint mPaint = new Paint(); // How to draw
     Path mPath   = new Path();  // Shape to draw
     float[] mCGPoints = new float[100]; // Assume at most 50 points in the CG envelope
@@ -60,8 +58,11 @@ public class GraphWNBView extends TextView {
         // was passed in to the control.
         mACSpecs.fromString(getText().toString());
 
-        // If the CG Env spec string is empty, auto-generate one
-        boolean bAuto = mACSpecs.getCGEnv().isEmpty();
+        // If the CG Env spec string is empty, or has less than 4 points,
+        // auto-generate one
+        boolean bAuto =
+                (mACSpecs.getCGEnv().isEmpty() ||
+                (mACSpecs.getCGEnv().split(" ").length < 5));
 
         // Auto plot is 4 corners based on the CG min/max and Empty/Gross weights
         float minArmGross = mACSpecs.getCGMin() * mACSpecs.getGross();

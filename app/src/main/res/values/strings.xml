@@ -597,7 +597,7 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="Reg">Registration :</string>
     <string name="WBSavePrompt">Save Weight &amp; Balance Data</string>
     <string name="WNBGraph">Dot Shows CG Location in W&amp;B Envelope</string>
-    <string name="SaveDelete">Save/Delete</string>
+    <string name="LoadDelete">Load/Delete</string>
     <string name="errMakeModelReg">Make/Model/Registration needs to be filled out</string>
     <string name="errNoDefaultOverwrite">Cannot overwrite a default profile</string>
     <string name="errNoDeleteDefault">Cannot delete a default profile</string>

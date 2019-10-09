@@ -317,14 +317,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight0"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -350,14 +350,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight1"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -383,14 +383,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight2"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -416,14 +416,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight3"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -449,14 +449,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight4"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -482,14 +482,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight5"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -515,14 +515,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight6"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -548,14 +548,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight7"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -581,14 +581,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight8"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 			<TableRow
@@ -614,14 +614,14 @@ Redistribution and use in source and binary forms, with or without modification,
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 
 				<EditText
 					android:id="@+id/idWeight9"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="2"
-					android:inputType="number" />
+					android:inputType="numberDecimal" />
 			</TableRow>
 
 		</TableLayout>
@@ -637,15 +637,14 @@ Redistribution and use in source and binary forms, with or without modification,
 		android:orientation="horizontal">
 
 		<Button
-			android:id="@+id/idLoad"
+			android:id="@+id/idLoadDelete"
 			style="?android:attr/borderlessButtonStyle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:gravity="center_horizontal|center_vertical"
-			android:text="@string/Load"
-			android:textSize="14sp"
-			android:textStyle="bold" />
+			android:text="@string/LoadDelete"
+			android:textSize="14sp" />
 
 		<Button
 			android:id="@+id/idGraph"
@@ -655,19 +654,17 @@ Redistribution and use in source and binary forms, with or without modification,
 			android:layout_weight="1"
 			android:gravity="center_horizontal|center_vertical"
 			android:text="@string/Graph"
-			android:textSize="14sp"
-			android:textStyle="bold" />
+			android:textSize="14sp" />
 
 		<Button
-			android:id="@+id/idSaveDelete"
+			android:id="@+id/idSave"
 			style="?android:attr/borderlessButtonStyle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:gravity="center_horizontal|center_vertical"
-			android:text="@string/SaveDelete"
-			android:textSize="14sp"
-			android:textStyle="bold" />
+			android:text="@string/Save"
+			android:textSize="14sp" />
 
 	</LinearLayout>
 	<TextView

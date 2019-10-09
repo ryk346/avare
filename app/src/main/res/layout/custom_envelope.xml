@@ -37,7 +37,7 @@
     </TableRow>
 
     <ScrollView
-        android:id="@+id/idArmStations"
+        android:id="@+id/idScrollArea"
         android:layout_width="match_parent"
         android:layout_height="225sp">
 
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="1." />
+                    android:text="@string/No1" />
 
                 <EditText
                     android:id="@+id/idLocation0"
@@ -80,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="2." />
+                    android:text="@string/No2" />
 
                 <EditText
                     android:id="@+id/idLocation1"
@@ -107,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="3." />
+                    android:text="@string/No3" />
 
                 <EditText
                     android:id="@+id/idLocation2"
@@ -134,7 +134,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="4." />
+                    android:text="@string/No4" />
 
                 <EditText
                     android:id="@+id/idLocation3"
@@ -161,7 +161,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="5." />
+                    android:text="@string/No5" />
 
                 <EditText
                     android:id="@+id/idLocation4"
@@ -188,7 +188,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="6." />
+                    android:text="@string/No6" />
 
                 <EditText
                     android:id="@+id/idLocation5"
@@ -215,7 +215,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="7." />
+                    android:text="@string/No7" />
 
                 <EditText
                     android:id="@+id/idLocation6"
@@ -242,7 +242,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="8." />
+                    android:text="@string/No8" />
 
                 <EditText
                     android:id="@+id/idLocation7"
@@ -269,7 +269,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="9." />
+                    android:text="@string/No9" />
 
                 <EditText
                     android:id="@+id/idLocation8"
@@ -296,7 +296,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="10." />
+                    android:text="@string/No10" />
 
                 <EditText
                     android:id="@+id/idLocation9"

@@ -120,16 +120,17 @@ public class WnbActivity extends Activity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         Helper.setTheme(this);
         super.onCreate(savedInstanceState);
-     
+
+        // Save our context and create a preference object
         mContext = this;
         mPref = new Preferences(mContext);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         mService = null;
 
+        // Inflate our view and set it as this tabs content
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = layoutInflater.inflate(R.layout.wnb, null);
         setContentView(mView);
@@ -156,19 +157,20 @@ public class WnbActivity extends Activity {
             mView.findViewById(idLocation).setOnFocusChangeListener(doRecalc);
         }
 
+        // The other fields that could change the data
         mView.findViewById(R.id.idCGMin).setOnFocusChangeListener(doRecalc);
         mView.findViewById(R.id.idCGMax).setOnFocusChangeListener(doRecalc);
         mView.findViewById(R.id.idGross).setOnFocusChangeListener(doRecalc);
         mView.findViewById(R.id.idEmpty).setOnFocusChangeListener(doRecalc);
 
         // Fetch all of the WnB default info that we know about
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_DEFAULT).getJSON()));
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_C172R).getJSON()));
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_PA23_250).getJSON()));
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_PA28R_200B).getJSON()));
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV7A).getJSON()));
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_VANS_RV10).getJSON()));
-        mACData.add(new AircraftSpecsWB(new WeightAndBalance(WeightAndBalance.WNB_GRUMMAN_AA1A).getJSON()));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_DEFAULT));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_C172R));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_PA23_250));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_PA28R_200B));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_VANS_RV7A));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_VANS_RV10));
+        mACData.add(getAircraftSpecsWB(WeightAndBalance.WNB_GRUMMAN_AA1A));
 
         // Set how many default profiles we have
         mDefProfiles = mACData.size();
@@ -189,27 +191,6 @@ public class WnbActivity extends Activity {
 
         // Use this data to calc and set the CG info
         calcAndSetCG();
-
-        // The display toggle button in the upper left will close/open the top calculation area
-        // This is useful on small displays to be able to view the ARM stations without clutter.
-        final ImageButton buttonToggle = mView.findViewById(R.id.idToggle);
-        final TableLayout vCGnWeight = mView.findViewById(R.id.idCGnWeight);
-        buttonToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch(vCGnWeight.getVisibility()) {
-                    case View.VISIBLE:
-                        vCGnWeight.setVisibility(View.GONE);
-                        buttonToggle.setImageDrawable(getResources().getDrawable(android.R.drawable.arrow_up_float));
-                        break;
-
-                    default:
-                        vCGnWeight.setVisibility(View.VISIBLE);
-                        buttonToggle.setImageDrawable(getResources().getDrawable(android.R.drawable.arrow_down_float));
-                        break;
-                }
-            }
-        });
 
         // Load a saved profile into the display area.
         mView.findViewById(R.id.idLoad).setOnClickListener(new View.OnClickListener() {
@@ -425,7 +406,15 @@ public class WnbActivity extends Activity {
 
     }
 
+    // Create and return an aircraftspecs object of the default
+    // type
+    //
+    private  AircraftSpecsWB getAircraftSpecsWB(int type) {
+        return new AircraftSpecsWB(new WeightAndBalance(type).getJSON());
+    }
+
     // Save all the created specs to storage
+    //
     private void saveACData() {
         LinkedList<AircraftSpecsWB> saveList = new LinkedList<>();
         for(int idx = mDefProfiles; idx < mACData.size(); idx++){
@@ -579,11 +568,15 @@ public class WnbActivity extends Activity {
         return tv;
     }
 
+    // Find a field in the view and return as a float
+    //
     private float getViewFieldFloat(View v, int id) {
         TextView tv = v.findViewById(id);
         return Helper.parseFloat(tv.getText().toString());
     }
 
+    // Find a field in the view and return as a string
+    //
     private String getViewFieldText(View v, int id) {
         TextView tv = v.findViewById(id);
         return tv.getText().toString();
@@ -606,7 +599,7 @@ public class WnbActivity extends Activity {
     }
 
     // Defines callbacks for service binding, passed to bindService()
-
+    //
     private ServiceConnection mConnection = new ServiceConnection() {
 
         /*

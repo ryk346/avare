@@ -605,5 +605,15 @@ Redistribution and use in source and binary forms, with or without modification,
     <string name="Saved">&#xA0;saved</string>
     <string name="SetCustom">Set Custom Envelope</string>
     <string name="EnvelopePoints">Envelope Corners</string>
+    <string name="No1">1.</string>
+    <string name="No2">2.</string>
+    <string name="No3">3.</string>
+    <string name="No4">4.</string>
+    <string name="No5">5.</string>
+    <string name="No6">6.</string>
+    <string name="No7">7.</string>
+    <string name="No8">8.</string>
+    <string name="No9">9.</string>
+    <string name="No10">10.</string>
 
 </resources>

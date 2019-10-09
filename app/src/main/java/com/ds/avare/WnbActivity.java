@@ -28,8 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -197,7 +195,7 @@ public class WnbActivity extends Activity {
             @Override
             public void onClick(View v) {
                 int idx = 0;
-                final String[] acProfiles = new String[mACData.size()];
+                String[] acProfiles = new String[mACData.size()];
                 for(AircraftSpecsWB as : mACData){
                     acProfiles[idx++] = as.getName();
                 }
@@ -224,7 +222,7 @@ public class WnbActivity extends Activity {
             }
         });
 
-        // Display a color chart showing the W&B
+        // Display a color chart showing the W&B, with option to edit it
         mView.findViewById(R.id.idGraph).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,7 +231,7 @@ public class WnbActivity extends Activity {
                 graphDlg.setContentView(R.layout.graph_wnb);
                 setDialogFieldText(graphDlg, R.id.idGraph, extract().toJSon().toString());
 
-                // This button brings up the custom weight/CG map
+                // This button brings up the custom weight/CG table
                 graphDlg.findViewById(R.id.idSetCustomEnv).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -241,6 +239,22 @@ public class WnbActivity extends Activity {
                         dlgSetCustomEnv.setTitle(R.string.EnvelopePoints);
                         dlgSetCustomEnv.setContentView(R.layout.custom_envelope);
 
+                        // Seed the current station arm data into the dialog fields
+                        int idx = 0;
+                        TextView vCGEnv = mView.findViewById(R.id.idCGEnv);
+                        String cgEnv = vCGEnv.getText().toString();
+                        if(!cgEnv.isEmpty()) {
+                            String[] armStations = cgEnv.split(" ");
+                            for (String armStation : armStations) {
+                                String[] as = armStation.split(",");
+                                setDialogFieldText(dlgSetCustomEnv, idLocations[idx], as[0]);
+                                setDialogFieldText(dlgSetCustomEnv, idWeights[idx], as[1]);
+                                idx++;
+                            }
+                        }
+
+                        // When the DONE button is pressed, copy all of the data from that dialog
+                        // into our temp profile so that the graph gets re-drawn
                         dlgSetCustomEnv.findViewById(R.id.idDone).setOnClickListener(new View.OnClickListener() {
                              @Override
                              public void onClick(View v) {
@@ -258,22 +272,12 @@ public class WnbActivity extends Activity {
                              }
                         });
 
-                        int idx = 0;
-                        TextView vCGEnv = mView.findViewById(R.id.idCGEnv);
-                        String cgEnv = vCGEnv.getText().toString();
-                        if(!cgEnv.isEmpty()) {
-                            String[] armStations = cgEnv.split(" ");
-                            for (String armStation : armStations) {
-                                String[] as = armStation.split(",");
-                                setDialogFieldText(dlgSetCustomEnv, idLocations[idx], as[0]);
-                                setDialogFieldText(dlgSetCustomEnv, idWeights[idx], as[1]);
-                                idx++;
-                            }
-                        }
+                        // Show this dialog to the user
                         dlgSetCustomEnv.show();
                     }
                 });
 
+                // Time to show this dialog to the user
                 graphDlg.show();
             }
         });
@@ -406,7 +410,7 @@ public class WnbActivity extends Activity {
 
     }
 
-    // Create and return an aircraftspecs object of the default
+    // Create and return an aircraftspecs object of the specified
     // type
     //
     private  AircraftSpecsWB getAircraftSpecsWB(int type) {
@@ -486,31 +490,26 @@ public class WnbActivity extends Activity {
     //
     private void calcAndSetCG() {
 
-        // Calculate the overall arm and gross weight
+        // Calculate the overall moment and gross weight
         float calcMoment = 0;
         float calcWT  = 0;
 
         // Add up all the weights we have in the station list
         // Calculate the arms at the stations, and add all those as well
         for(int idx = 0; idx < idNames.length; idx++) {
-            float weight   = getViewFieldFloat(mView, idWeights[idx]);
-            float location = getViewFieldFloat(mView, idLocations[idx]);
-
-            calcMoment += weight * location;
-            calcWT += weight;
+            calcMoment += getViewFieldFloat(mView, idWeights[idx]) *
+                          getViewFieldFloat(mView, idLocations[idx]);
+            calcWT += getViewFieldFloat(mView, idWeights[idx]);
         }
 
         // The forwardmost allowable CG location
-        TextView cgMin = mView.findViewById(R.id.idCGMin);
-        float fCGMin = Helper.parseFloat(cgMin.getText().toString());
+        float fCGMin = getViewFieldFloat(mView, R.id.idCGMin);
 
         // The rearwardmost allowable CG location
-        TextView cgMax = mView.findViewById(R.id.idCGMax);
-        float fCGMax = Helper.parseFloat(cgMax.getText().toString());
+        float fCGMax = getViewFieldFloat(mView, R.id.idCGMax);
 
         // Max/Gross weight allowed
-        TextView grossWT = mView.findViewById(R.id.idGross);
-        float fGross = Helper.parseFloat(grossWT.getText().toString());
+        float fGross = getViewFieldFloat(mView, R.id.idGross);
 
         // Calculate the CG for this condition.
         float calcCG = calcWT > 0 ? calcMoment / calcWT : 0;
@@ -543,13 +542,9 @@ public class WnbActivity extends Activity {
     // A little helper method to set good/bad colors of a specific
     // view
     private boolean setStatusColor(TextView v, boolean bGoodBad) {
-        if(bGoodBad) {
-            v.setTextColor(Color.BLACK);
-            v.setBackgroundColor(Color.GREEN);
-        } else {
-            v.setTextColor(Color.WHITE);
-            v.setBackgroundColor(Color.RED);
-        }
+        v.setTextColor(bGoodBad ? Color.BLACK : Color.WHITE);
+        v.setBackgroundColor(bGoodBad ? Color.GREEN : Color.RED);
+
         return bGoodBad;
     }
 

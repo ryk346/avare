@@ -113,7 +113,7 @@ public class WeightAndBalance {
      */
     private static String getExampleC172R() {
         return "{" +
-                "'name'  :'Cessna C172R 123AB'," +
+                "'name'  :'Cessna C172R N123AB'," +
                 "'t_0'   :'Empty'," +
                 "'w_0'   :'1666.8'," +
                 "'a_0'   :'39.302',"+
@@ -154,7 +154,7 @@ public class WeightAndBalance {
 
     private String getExamplePA23250() {
         return "{" +
-                "'name'  :'Piper PA23-250 123AB'," +
+                "'name'  :'Piper PA23-250 N123AB'," +
                 "'t_0'   :'Empty'," +
                 "'w_0'   :'3178'," +
                 "'a_0'   :'90.71',"+

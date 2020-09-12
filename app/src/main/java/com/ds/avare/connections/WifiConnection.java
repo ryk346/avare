@@ -14,15 +14,12 @@ package com.ds.avare.connections;
 
 import android.content.Context;
 
-
 import com.ds.avare.storage.Preferences;
 import com.ds.avare.utils.GenericCallback;
 import com.ds.avare.utils.Logger;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -177,7 +174,7 @@ public class WifiConnection extends Connection {
     }
 
     @Override
-    public void write(byte[] aData) { return; };
+    public void write(byte[] aData) { return; }
 
     /**
      * 

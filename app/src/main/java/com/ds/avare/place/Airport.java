@@ -48,7 +48,7 @@ public class Airport {
      */
     public Airport(LinkedHashMap<String, String> params, double cLon, double cLat) {
         mLon = Double.parseDouble(params.get(LocationContentProviderHelper.LONGITUDE));
-        mLat = Double.parseDouble(params.get(LocationContentProviderHelper.LATITUDE));;
+        mLat = Double.parseDouble(params.get(LocationContentProviderHelper.LATITUDE));
         mId = params.get(LocationContentProviderHelper.LOCATION_ID);
         mName = params.get(LocationContentProviderHelper.FACILITY_NAME);
         mFuel = params.get(LocationContentProviderHelper.FUEL_TYPES);
@@ -161,14 +161,11 @@ public class Airport {
          * Height * glide ratio (distance feet / height feet) = distance
          */
         double radius = mHeight * mPref.getGlideRatio() / Preferences.feetConversion;
-        if(radius > getDistance()) {
-            /*
-             * This is in glide distance
-             */
-            return true;
-        }
         
-        return false;
+        /*
+         * This is in glide distance
+         */
+        return radius > getDistance();
     }
 
 }

@@ -936,6 +936,27 @@ public class LocationView extends View implements MultiTouchObjectCanvas<Object>
         }
     }
 
+    // Display red cross to indicate Lost GPS error
+    private void drawGpsLost(Canvas canvas){
+        if(mErrorStatus!=null && mErrorStatus.equals(getContext().getString(R.string.GPSLost))){
+
+            int lineWidth1 = (int) (Math.min(getWidth(),getHeight()) * 0.05);
+            int lineWidth2 = (int) (Math.min(getWidth(),getHeight()) * 0.02);
+
+            mPaint.setColor(Color.RED);// shadow color is red
+            mPaint.setStrokeWidth(lineWidth1);		// Line width
+            canvas.drawLine(lineWidth1 / 2,  (int) mService.getInfoLines().getHeight() + lineWidth1 / 2,  getWidth() - lineWidth1 / 2, getHeight() - lineWidth1 / 2, mPaint);
+            canvas.drawLine(lineWidth1 / 2,  getHeight() - lineWidth1 / 2 ,  getWidth() - lineWidth1 / 2,(int) mService.getInfoLines().getHeight() + lineWidth1 / 2, mPaint);
+
+            // Same line positions, but thinner and black
+            mPaint.setColor(Color.BLACK);// shadow color is red
+            mPaint.setStrokeWidth(lineWidth2);		// Line width
+            canvas.drawLine(lineWidth1 / 2,  (int) mService.getInfoLines().getHeight() + lineWidth1 / 2,  getWidth() - lineWidth1 / 2, getHeight() - lineWidth1 / 2, mPaint);
+            canvas.drawLine(lineWidth1 / 2,  getHeight() - lineWidth1 / 2 ,  getWidth() - lineWidth1 / 2,(int) mService.getInfoLines().getHeight() + lineWidth1 / 2, mPaint);
+
+        }
+    }
+
     // Display all of the user defined waypoints if configured to do so
     private void drawUserDefinedWaypoints(Canvas canvas, DrawingContext ctx) {
         if(mPointProjection == null) {
@@ -1034,6 +1055,7 @@ public class LocationView extends View implements MultiTouchObjectCanvas<Object>
         drawStatusLines(canvas);
       	drawEdgeMarkers(canvas); // Must be after the infolines
       	drawNavComments(canvas);
+      	drawGpsLost(canvas);
     }    
 
     /**

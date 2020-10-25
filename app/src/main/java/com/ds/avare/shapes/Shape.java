@@ -76,10 +76,8 @@ public abstract class Shape {
         }
         long diff = Helper.getMillisGMT();
         diff -= mDate.getTime();
-        if(diff > expiry * 60 * 1000) {
-            return true;
-        }
-        return false;
+
+        return diff > (expiry * 60 * 1000);
     }
 
     /**
@@ -151,7 +149,7 @@ public abstract class Shape {
                 float x1 = (float)origin.getOffsetX(mCoords.get(coord).getLongitude());
                 float x2 = (float)origin.getOffsetX(mCoords.get(coord + 1).getLongitude());
                 float y1 = (float)origin.getOffsetY(mCoords.get(coord).getLatitude());
-                float y2 = (float)origin.getOffsetY(mCoords.get(coord + 1).getLatitude());;
+                float y2 = (float)origin.getOffsetY(mCoords.get(coord + 1).getLatitude());
 
                 if(drawTrack) {
 	                paint.setStrokeWidth(width + 4);

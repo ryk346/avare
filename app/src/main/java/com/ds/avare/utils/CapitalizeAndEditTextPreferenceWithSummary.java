@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012, Apps4Av Inc. (apps4av.com) 
+Copyright (c) 2012, Apps4Av Inc. (apps4av.com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -10,71 +10,40 @@ Redistribution and use in source and binary forms, with or without modification,
     *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package com.ds.avare.position;
+package com.ds.avare.utils;
+
+import android.content.Context;
+import android.preference.EditTextPreference;
+import android.util.AttributeSet;
 
 /**
- * Simple WGS coordinates
- * @author zkhan
+ *
+ * @author jackwilliard
  *
  */
-public class Coordinate {
+public class CapitalizeAndEditTextPreferenceWithSummary extends EditTextPreference {
 
-    private double mLat;
-    private double mLon;
-   
-    private boolean mSeparate;
-    private int mLeg;
-    
-    
-    public static void setLeg(Coordinate[] coord, int leg) {
-    	for (Coordinate c : coord) {
-    		c.mLeg = leg;
-    	}
-    }
-    
-    public int getLeg() {
-    	return mLeg;
-    }
-    
-    public void setSegment(int segment) {
-    	mLeg = segment;
-    }
-    
-    /**
-     * 
-     * @param lon
-     * @param lat
-     */
-    public Coordinate(double lon, double lat) {
-        mLat = lat;
-        mLon = lon;
-        mSeparate = false;
-    }
-    
-    /**
-     */
-    public double getLongitude() {
-        return mLon;
-    }
-    
-    /**
-     */
-    public double getLatitude() {
-        return mLat;
+    private String originalSummary = "";
+
+    public CapitalizeAndEditTextPreferenceWithSummary(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        originalSummary = super.getSummary().toString();
     }
 
-    /**
-     * 
-     */
-    public void makeSeparate()  {
-       mSeparate = true; 
+    public CapitalizeAndEditTextPreferenceWithSummary(Context context) {
+        super(context);
+        originalSummary = super.getSummary().toString();
     }
-    
-    /**
-     * 
-     * @return
-     */
-    public boolean isSeparate() {
-        return mSeparate;
+
+    @Override
+    public void setText(String value) {
+        super.setText(value.toUpperCase());
+        setSummary(originalSummary + " (" + value + ")");
+    }
+
+    @Override
+    public void setSummary(CharSequence summary) {
+        super.setSummary(originalSummary + " (" + getText().toUpperCase() + ")");
     }
 }
+

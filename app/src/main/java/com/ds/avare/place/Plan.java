@@ -590,7 +590,7 @@ public class Plan implements Observer {
 
             Destination d;
             if (null != newDestination) {
-                d = DestinationFactory.build(mService, newDestination,destType);
+                d = DestinationFactory.build(newDestination,destType);
             } else {
                 d = DestinationFactory.build(Helper.getGpsAddress(lon, lat), Destination.GPS);
             }
